@@ -1,0 +1,42 @@
+/* ============================================================
+   Темы шаблона. Переключаются атрибутом data-theme на <html>.
+   default  — хвоя и бумага (основная)
+   graphite — графит и медь
+   marine   — глубокий синий и песок
+   ============================================================ */
+
+[data-theme="graphite"] {
+  --bg: #F4F3F0;
+  --bg-2: #EAE8E3;
+  --surface-2: #F0EEEA;
+  --ink: #17181A;
+  --ink-2: #4C4B48;
+  --ink-3: #6B6963;
+  --line: #E3E0DA;
+  --line-2: #D2CEC6;
+  --accent: #2F3236;
+  --accent-h: #1F2225;
+  --accent-ink: #23262A;
+  --accent-soft: #EDE9E2;
+  --accent-soft-2: #E0D9CE;
+  --gold: #B07A4A;
+  --gold-ink: #8A5B33;
+}
+
+[data-theme="marine"] {
+  --bg: #F2F5F7;
+  --bg-2: #E6EBEF;
+  --surface-2: #EDF1F4;
+  --ink: #101820;
+  --ink-2: #47525C;
+  --ink-3: #66717B;
+  --line: #DDE4EA;
+  --line-2: #CBD4DC;
+  --accent: #123C63;
+  --accent-h: #0C2C4A;
+  --accent-ink: #0E3355;
+  --accent-soft: #E3EDF5;
+  --accent-soft-2: #CFDFEC;
+  --gold: #A9855A;
+  --gold-ink: #7E6240;
+}

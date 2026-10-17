@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Айдентика и UI-кит — MegaMedStom</title>
+<meta name="description" content="Фирменный стиль и библиотека компонентов шаблона MegaMedStom: логотип, палитра, типографика, элементы интерфейса, темы.">
+<meta name="theme-color" content="#F7F5EF">
+<link rel="canonical" href="https://mega-med-store.vercel.app/styleguide.html">
+<meta name="robots" content="noindex, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Айдентика и UI-кит — MegaMedStom">
+<meta property="og:url" content="https://mega-med-store.vercel.app/styleguide.html">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Spectral:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css?v=20261017f">
+<link rel="stylesheet" href="css/shop.css?v=20261017f">
+<link rel="stylesheet" href="css/premium.css?v=20261017f">
+<link rel="stylesheet" href="css/themes.css?v=20261017f">
+<style>
+  .sg-head { padding-top: 30px; padding-bottom: 8px; }
+  .sg-head h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(32px, 5vw, 54px); line-height: 1.05; letter-spacing: -.02em; margin: 12px 0; }
+  .sg-head p { max-width: 620px; color: var(--ink-2); line-height: 1.65; }
+  .sg-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .sg-sec { padding: 34px 0; border-top: 1px solid var(--line); }
+  .sg-sec > .wrap > h2 { font-family: var(--font-display); font-weight: 600; font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -.015em; margin-bottom: 6px; }
+  .sg-sec__note { color: var(--ink-3); font-size: 13px; margin-bottom: 22px; max-width: 620px; line-height: 1.6; }
+
+  .sg-logos { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .sg-logos { grid-template-columns: 1fr 1fr; } }
+  .sg-logo-box { display: grid; place-items: center; gap: 14px; padding: 34px 20px; border-radius: var(--r-lg); border: 1px solid var(--line); background: #fff; text-align: center; }
+  .sg-logo-box--dark { background: #12130F; border-color: #12130F; }
+  .sg-logo-box small { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+  .sg-lockup { display: flex; align-items: center; gap: 12px; }
+  .sg-lockup .logo__name { font-family: var(--font-display); font-size: 26px; letter-spacing: -.02em; }
+  .sg-lockup .logo__sub { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); display: block; margin-top: 2px; }
+  .sg-logo-box--dark .logo__name { color: #fff; }
+  .sg-logo-box--dark .logo__name em { color: #8FD0C2; font-style: normal; }
+  .sg-logo-box--dark .logo__sub { color: rgba(255,255,255,.5); }
+
+  .sg-rules { display: grid; gap: 12px; grid-template-columns: 1fr; margin-top: 16px; }
+  @media (min-width: 760px) { .sg-rules { grid-template-columns: repeat(3, 1fr); } }
+  .sg-rule { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; background: #fff; }
+  .sg-rule b { display: block; font-size: 13px; margin-bottom: 4px; }
+  .sg-rule span { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+
+  .sg-swatches { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 760px) { .sg-swatches { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+  .sg-sw { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: #fff; }
+  .sg-sw__chip { height: 76px; }
+  .sg-sw__meta { padding: 10px 12px; }
+  .sg-sw__meta b { display: block; font-size: 12.5px; }
+  .sg-sw__meta code { font-size: 11px; color: var(--ink-3); letter-spacing: .04em; }
+
+  .sg-type { display: grid; gap: 22px; }
+  .sg-type__row { display: grid; gap: 6px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .sg-type__row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .sg-type__meta { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-ink); }
+  .sg-display { font-family: var(--font-display); font-weight: 600; font-size: clamp(30px, 4.4vw, 52px); line-height: 1.06; letter-spacing: -.02em; }
+  .sg-h2 { font-family: var(--font-display); font-weight: 600; font-size: clamp(22px, 2.6vw, 32px); letter-spacing: -.015em; }
+  .sg-lead { font-size: 16px; color: var(--ink-2); line-height: 1.65; max-width: 560px; }
+  .sg-body { font-size: 14px; line-height: 1.6; max-width: 560px; }
+  .sg-micro { font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
+
+  .sg-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .sg-stack { display: grid; gap: 14px; }
+  .sg-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 18px; }
+  .sg-card h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 14px; }
+  .sg-lab { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 14px 0 8px; }
+  .sg-icons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (min-width: 760px) { .sg-icons { grid-template-columns: repeat(8, 1fr); } }
+  .sg-icon { display: grid; place-items: center; gap: 6px; padding: 12px 6px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--accent); }
+  .sg-icon span { font-size: 9px; letter-spacing: .06em; color: var(--ink-3); text-align: center; word-break: break-word; }
+
+  .sg-themes { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .sg-themes { grid-template-columns: repeat(3, 1fr); } }
+  .sg-theme { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: #fff; }
+  .sg-theme__bar { height: 66px; }
+  .sg-theme__body { padding: 14px 16px 16px; }
+  .sg-theme__body b { display: block; font-size: 14px; margin-bottom: 2px; }
+  .sg-theme__body span { display: block; font-size: 12px; color: var(--ink-3); margin-bottom: 12px; }
+  .sg-theme.is-current { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  .sg-dodont { display: grid; gap: 12px; }
+  @media (min-width: 760px) { .sg-dodont { grid-template-columns: 1fr 1fr; } }
+  .sg-dd { border-radius: var(--r-md); padding: 14px 16px; border: 1px solid var(--line); background: #fff; }
+  .sg-dd b { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+  .sg-dd--yes b { color: var(--accent); }
+  .sg-dd--no b { color: #A33A2E; }
+  .sg-dd p { font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+</style>
+</head>
+<body class="has-bottom-nav" data-page="styleguide">
+<div id="chromeTop"></div>
+<main id="main" class="page__main">
+  <div class="wrap sg-head">
+    <nav class="crumbs" aria-label="Хлебные крошки"><ol><li><a href="index.html">Главная</a></li><li>UI-кит</li></ol></nav>
+    <div class="label">Бренд-система · версия 1.0</div>
+    <h1>Айдентика и UI-кит</h1>
+    <p>Один источник правды для шаблона: знак, палитра, типографика, компоненты и темы. Меняя эти правила, магазин остаётся цельным — от главной до письма клиенту.</p>
+    <div class="sg-meta">
+      <span class="badge badge--accent">Spectral · Manrope</span>
+      <span class="badge">3 темы</span>
+      <span class="badge">WCAG AA</span>
+      <span class="badge">mobile-first</span>
+    </div>
+  </div>
+
+  <section class="sg-sec"><div class="wrap">
+    <h2>Логотип</h2>
+    <p class="sg-sec__note">Знак — зуб, вписанный в скруглённый квадрат, с латунной точкой-печатью. Точка — единственный декоративный элемент, её нельзя масштабировать отдельно или перекрашивать.</p>
+    <div class="sg-logos">
+      <div class="sg-logo-box">
+        <div class="sg-lockup">
+          <span id="sgMark"></span>
+          <span><span class="logo__name">Mega<em style="font-style:normal;color:var(--accent)">Med</em>Stom</span><span class="logo__sub">Стоматологические товары · Астана</span></span>
+        </div>
+        <small>Основная версия · светлый фон</small>
+      </div>
+      <div class="sg-logo-box sg-logo-box--dark">
+        <div class="sg-lockup">
+          <span id="sgMarkDark"></span>
+          <span><span class="logo__name">Mega<em>Med</em>Stom</span><span class="logo__sub">Стоматологические товары · Астана</span></span>
+        </div>
+        <small style="color:rgba(255,255,255,.45)">Инверсная версия · тёмный фон</small>
+      </div>
+    </div>
+    <div class="sg-rules">
+      <div class="sg-rule"><b>Охранное поле</b><span>Отступ вокруг знака — не меньше высоты латунной точки. Ничего не заводим в это поле.</span></div>
+      <div class="sg-rule"><b>Минимальный размер</b><span>Знак — от 24 px, логотип с подписью — от 120 px по ширине. Ниже используем только знак.</span></div>
+      <div class="sg-rule"><b>Что нельзя</b><span>Менять пропорции, наклонять, обводить, класть на пёстрый фон, заменять шрифт подписи.</span></div>
+    </div>
+  </div></section>
+
+  <section class="sg-sec"><div class="wrap">
+    <h2>Палитра</h2>
+    <p class="sg-sec__note">Тёплая бумага вместо белого, глубокий хвойный вместо корпоративного синего, латунь только в деталях. Все текстовые пары проверены на контраст AA.</p>
+    <div class="sg-swatches">
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#F7F5EF"></div><div class="sg-sw__meta"><b>Бумага</b><code>#F7F5EF · --bg</code></div></div>
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#14150F"></div><div class="sg-sw__meta"><b>Чернила</b><code>#14150F · --ink</code></div></div>
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#0F4C44"></div><div class="sg-sw__meta"><b>Хвоя</b><code>#0F4C44 · --accent</code></div></div>
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#A9855A"></div><div class="sg-sw__meta"><b>Латунь</b><code>#A9855A · --gold</code></div></div>
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#E6F0EB"></div><div class="sg-sw__meta"><b>Мята</b><code>#E6F0EB · --accent-soft</code></div></div>
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#7E6240"></div><div class="sg-sw__meta"><b>Латунь текст</b><code>#7E6240 · --gold-ink</code></div></div>
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#E6E1D6"></div><div class="sg-sw__meta"><b>Линия</b><code>#E6E1D6 · --line</code></div></div>
+      <div class="sg-sw"><div class="sg-sw__chip" style="background:#514E46"></div><div class="sg-sw__meta"><b>Текст 2</b><code>#514E46 · --ink-2</code></div></div>
+    </div>
+  </div></section>
+
+  <section class="sg-sec"><div class="wrap">
+    <h2>Типографика</h2>
+    <p class="sg-sec__note">Антиква Spectral отвечает за характер: заголовки, крупные цифры, названия разделов. Manrope — за интерфейс: кнопки, поля, подписи, цены.</p>
+    <div class="sg-type">
+      <div class="sg-type__row"><div class="sg-type__meta">Display · Spectral 600 · 32–58 px</div><div class="sg-display">Всё для профессиональной стоматологии</div></div>
+      <div class="sg-type__row"><div class="sg-type__meta">Heading · Spectral 600 · 22–32 px</div><div class="sg-h2">Хиты для кабинета</div></div>
+      <div class="sg-type__row"><div class="sg-type__meta">Lead · Manrope 400 · 16–17 px</div><div class="sg-lead">Материалы, инструменты и оборудование для стоматологических кабинетов и клиник. Доставка по всему Казахстану.</div></div>
+      <div class="sg-type__row"><div class="sg-type__meta">Body · Manrope 400 · 14 px</div><div class="sg-body">Композит светоотверждаемый микрогибридный, шприц 4 г. Наличие подтвердит менеджер при обработке заказа.</div></div>
+      <div class="sg-type__row"><div class="sg-type__meta">Label · Manrope 700 · 10.5 px · 0.18em</div><div class="sg-micro">Астана · прямые поставки</div></div>
+    </div>
+  </div></section>
+
+  <section class="sg-sec"><div class="wrap">
+    <h2>Компоненты</h2>
+    <p class="sg-sec__note">Базовые элементы собраны из одних токенов: радиус, тень, цвет. Новый магазин собирается из них без перерисовки.</p>
+    <div class="sg-stack">
+      <div class="sg-card">
+        <h3>Кнопки</h3>
+        <div class="sg-row">
+          <button class="btn btn--primary">В корзину</button>
+          <button class="btn btn--dark">Фильтры</button>
+          <button class="btn btn--ghost">Подробнее</button>
+          <button class="btn btn--soft">В список</button>
+          <button class="btn btn--primary" disabled>Нет в наличии</button>
+        </div>
+        <div class="sg-lab">Размеры</div>
+        <div class="sg-row">
+          <button class="btn btn--primary btn--sm">Small</button>
+          <button class="btn btn--primary">Base</button>
+          <button class="btn btn--primary btn--lg">Large</button>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <h3>Поля и выбор</h3>
+        <div class="sg-row" style="align-items:flex-start">
+          <label class="field" style="flex:1 1 240px"><span>Телефон</span><input class="input" placeholder="+7 (___) ___-__-__"></label>
+          <label class="field" style="flex:1 1 240px"><span>Город</span><select class="select"><option>Астана</option><option>Алматы</option></select></label>
+        </div>
+        <div class="sg-lab">Чипы и бейджи</div>
+        <div class="sg-row">
+          <span class="chip is-active">Все</span>
+          <span class="chip">Композиты</span>
+          <span class="chip">Адгезивы</span>
+          <span class="badge badge--accent">Новинка</span>
+          <span class="badge badge--ok">В наличии</span>
+          <span class="badge badge--dark">Хит</span>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <h3>Карточка товара</h3>
+        <div style="max-width:260px">
+          <div class="pcard">
+            <div class="pcard__media"><img src="images/products/comp-001-320.webp" width="640" height="640" alt="Композит светоотверждаемый" loading="lazy" decoding="async"></div>
+            <div class="pcard__body">
+              <div class="pcard__meta"><i>GC</i><i>MM-1001</i></div>
+              <div class="pcard__name">Композит светоотверждаемый микрогибридный, шприц 4 г</div>
+              <div class="pcard__foot">
+                <div class="pcard__price"><b>24 900 ₸</b><span>шприц 4 г</span></div>
+                <div class="pcard__actions"><button class="pcard__add" aria-label="В корзину"><span data-icon="plus" data-isize="18"></span><span class="pcard__add-txt">В корзину</span></button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <h3>Аккордеон</h3>
+        <details class="facc" open><summary><b>Доставка и оплата</b></summary><div class="footer__links" style="padding-bottom:0"><a href="delivery.html">Условия доставки</a><a href="returns.html">Возврат и обмен</a></div></details>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="sg-sec"><div class="wrap">
+    <h2>Иконки</h2>
+    <p class="sg-sec__note">Линейные, штрих 1.8, единая сетка 24×24. Толщина и скругления не меняются — иначе интерфейс «рассыпается».</p>
+    <div class="sg-icons" id="sgIcons"></div>
+  </div></section>
+
+  <section class="sg-sec"><div class="wrap">
+    <h2>Темы</h2>
+    <p class="sg-sec__note">Одна вёрстка — три характера. Тема хранится в браузере и применяется ко всем страницам; для нового магазина достаточно выбрать пресет и подставить свои цвета.</p>
+    <div class="sg-themes">
+      <div class="sg-theme" data-theme-card="default">
+        <div class="sg-theme__bar" style="background:linear-gradient(135deg,#F7F5EF 0 55%,#0F4C44 55% 80%,#A9855A 80% 100%)"></div>
+        <div class="sg-theme__body"><b>Хвоя и бумага</b><span>Основная · медицина и доверие</span><button class="btn btn--ghost btn--sm" data-theme-set="default">Применить</button></div>
+      </div>
+      <div class="sg-theme" data-theme-card="graphite">
+        <div class="sg-theme__bar" style="background:linear-gradient(135deg,#F4F3F0 0 55%,#2F3236 55% 80%,#B07A4A 80% 100%)"></div>
+        <div class="sg-theme__body"><b>Графит и медь</b><span>Премиальная витрина, инструменты</span><button class="btn btn--ghost btn--sm" data-theme-set="graphite">Применить</button></div>
+      </div>
+      <div class="sg-theme" data-theme-card="marine">
+        <div class="sg-theme__bar" style="background:linear-gradient(135deg,#F2F5F7 0 55%,#123C63 55% 80%,#A9855A 80% 100%)"></div>
+        <div class="sg-theme__body"><b>Море и песок</b><span>Клиники, лаборатории, опт</span><button class="btn btn--ghost btn--sm" data-theme-set="marine">Применить</button></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="sg-sec"><div class="wrap">
+    <h2>Тон голоса</h2>
+    <p class="sg-sec__note">Без восклицаний, уменьшительных и «лучших в мире». Конкретика вместо эпитетов: что, когда, на каких условиях.</p>
+    <div class="sg-dodont">
+      <div class="sg-dd sg-dd--yes"><b>Так</b><p>«Самовывоз со склада в Астане — в день заказа. Счёт для клиники подготовим по БИН».</p></div>
+      <div class="sg-dd sg-dd--no"><b>Не так</b><p>«Лучшие цены! Супер-быстрая доставка! Вы будете в восторге!»</p></div>
+    </div>
+  </div></section>
+</main>
+<div id="chromeFooter"></div>
+<script src="js/base.js?v=20261017f"></script>
+<script src="js/art.js?v=20261017f"></script>
+<script src="js/data.js?v=20261017f"></script>
+<script src="js/store.js?v=20261017f"></script>
+<script src="js/search.js?v=20261017f"></script>
+<script src="js/ui.js?v=20261017f"></script>
+<script>
+  document.getElementById("sgMark").innerHTML = MMS.logoMark(46);
+  document.getElementById("sgMarkDark").innerHTML = MMS.logoMark(46);
+  document.getElementById("sgIcons").innerHTML = ["search","cart","heart","user","truck","clock","pin","phone","mail","check","help","filter","box","shield","plus","star"]
+    .map(function (n) { return '<div class="sg-icon">' + MMS.icon(n, 22) + "<span>" + n + "</span></div>"; }).join("");
+
+  var cur = localStorage.getItem("mms_theme") || "default";
+  document.querySelectorAll("[data-theme-card]").forEach(function (el) {
+    el.classList.toggle("is-current", el.getAttribute("data-theme-card") === cur);
+  });
+  document.querySelectorAll("[data-theme-set]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-theme-set");
+      if (v === "default") localStorage.removeItem("mms_theme"); else localStorage.setItem("mms_theme", v);
+      location.reload();
+    });
+  });
+
+  MMS.ui.init({ page: "styleguide" });
+</script>
+</body>
+</html>

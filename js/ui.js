@@ -763,6 +763,17 @@
     const page = opts.page || document.body.getAttribute("data-page") || "";
     const cat = opts.cat || ui.qsp("cat");
 
+    /* тема шаблона: default / graphite / marine (см. css/themes.css) */
+    try {
+      const th = ui.qsp("theme") || localStorage.getItem("mms_theme");
+      if (th && th !== "default") {
+        document.documentElement.setAttribute("data-theme", th);
+        localStorage.setItem("mms_theme", th);
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+      }
+    } catch (e) { /* приватный режим */ }
+
     const chromeTop = $("#chromeTop");
     if (chromeTop) { chromeTop.innerHTML = headerHtml(page, cat); }
 
