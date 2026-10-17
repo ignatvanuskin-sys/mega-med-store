@@ -54,7 +54,7 @@ MMS.SYN = {
 /* ---------------- Товары ---------------- */
 MMS.PRODUCTS = [
   /* ---- Терапевтические материалы ---- */
-  { id: "comp-001", name: "Композит светоотверждаемый микрогибридный, шприц 4 г", brand: "GC", article: "MM-1001", cat: "terapiya", sub: "kompozity", price: 24900, unit: "шприц 4 г", art: "compos", img: "images/products/comp-001.jpg", rank: 1, addedAt: 20260110,
+  { id: "comp-001", name: "Композит светоотверждаемый микрогибридный, шприц 4 г", brand: "GC", article: "MM-1001", cat: "terapiya", sub: "kompozity", price: 24900, unit: "шприц 4 г", art: "compos", img: "images/products/comp-001-v2.jpg", rank: 1, addedAt: 20260110,
     variants: [{ label: "Оттенок A1", price: 24900 }, { label: "Оттенок A2", price: 24900 }, { label: "Оттенок A3", price: 24900 }, { label: "Оттенок A3.5", price: 24900 }],
     desc: "Универсальный микрогибридный композит для реставраций передних и жевательных зубов. Хорошо держит форму, легко полируется.",
     specs: [["Фасовка", "шприц 4 г"], ["Оттенки", "A1, A2, A3, A3.5"], ["Тип", "микрогибридный, светоотверждаемый"]], tags: ["композит", "пломба", "реставрация", "светоотверждаемый"] },
@@ -184,7 +184,7 @@ MMS.PRODUCTS = [
     specs: [["Тип", "с замком"]], tags: ["матрицедержатель", "инструмент"] },
 
   /* ---- Боры ---- */
-  { id: "bor-001", name: "Алмазные боры, набор 20 шт, разные формы", brand: "Komet", article: "MM-6001", cat: "bory", sub: "almaznye", price: 8900, unit: "набор 20 шт", art: "burset", img: "images/products/bor-001.jpg", rank: 8, addedAt: 20260116,
+  { id: "bor-001", name: "Алмазные боры, набор 20 шт, разные формы", brand: "Komet", article: "MM-6001", cat: "bory", sub: "almaznye", price: 8900, unit: "набор 20 шт", art: "burset", img: "images/products/bor-001-v2.jpg", rank: 8, addedAt: 20260116,
     desc: "Набор алмазных боров в ассортименте: шаровидные, конусные, цилиндрические. Для препарирования эмали и финишной обработки.",
     specs: [["Комплектация", "20 шт"], ["Формы", "ассортимент"]], tags: ["боры", "алмазные", "набор", "препарирование"] },
   { id: "bor-002", name: "Алмазный бор, шаровидный, одиночный", brand: "Komet", article: "MM-6002", cat: "bory", sub: "almaznye", price: 380, unit: "1 шт", art: "bur", img: "images/products/bor-002.jpg", rank: 55, addedAt: 20251206,
@@ -199,7 +199,7 @@ MMS.PRODUCTS = [
     specs: [["Комплектация", "6 размеров"]], tags: ["gates", "эндоборы", "каналы"] },
 
   /* ---- Анестезия ---- */
-  { id: "art-001", name: "Артикаин 4% с эпинефрином 1:200 000, 50 карпул", brand: "Septodont", article: "MM-7001", cat: "anesteziya", sub: "karpuly", price: 14900, unit: "упаковка 50 карпул", art: "carpule", img: "images/products/art-001.jpg", rank: 2, addedAt: 20260119,
+  { id: "art-001", name: "Артикаин 4% с эпинефрином 1:200 000, 50 карпул", brand: "Septodont", article: "MM-7001", cat: "anesteziya", sub: "karpuly", price: 14900, unit: "упаковка 50 карпул", art: "carpule", img: "images/products/art-001-v2.jpg", rank: 2, addedAt: 20260119,
     desc: "Карпульный анестетик для инфильтрационной и проводниковой анестезии. Оптимальный профиль начала и глубины.",
     specs: [["Фасовка", "50 карпул × 1.7 мл"], ["Концентрация", "4%, 1:200 000"]], tags: ["анестезия", "артикаин", "карпулы", "ультракаин"] },
   { id: "art-002", name: "Мепивакаин 3%, 50 карпул", brand: "Septodont", article: "MM-7002", cat: "anesteziya", sub: "karpuly", price: 18900, unit: "упаковка 50 карпул", art: "carpule", img: "images/products/art-002.jpg", rank: 13, addedAt: 20260128,
@@ -220,7 +220,7 @@ MMS.PRODUCTS = [
     specs: [["Объём", "30 г"]], tags: ["аппликация", "гель", "обезболивание"] },
 
   /* ---- Расходные материалы ---- */
-  { id: "glv-001", name: "Перчатки нитриловые неопудренные, 100 шт", brand: "ПрофДент", article: "MM-8001", cat: "rashodniki", sub: "perchatki", price: 3290, unit: "упаковка 100 шт", art: "glove", img: "images/products/glv-001.jpg", rank: 16, addedAt: 20260111,
+  { id: "glv-001", name: "Перчатки нитриловые неопудренные, 100 шт", brand: "ПрофДент", article: "MM-8001", cat: "rashodniki", sub: "perchatki", price: 3290, unit: "упаковка 100 шт", art: "glove", img: "images/products/glv-001-v2.jpg", rank: 16, addedAt: 20260111,
     variants: [{ label: "S", price: 3290 }, { label: "M", price: 3290 }, { label: "L", price: 3290 }, { label: "XL", price: 3490 }],
     desc: "Прочные нитриловые перчатки без пудры с текстурой на пальцах.",
     specs: [["Фасовка", "100 шт"], ["Размеры", "S–XL"]], tags: ["перчатки", "нитрил", "расходники"] },
