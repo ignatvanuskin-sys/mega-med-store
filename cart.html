@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Корзина — MegaMedStom Astana</title>
+<meta name="description" content="Ваша корзина. Оформление заказа без регистрации, подтверждение менеджером, доставка по Казахстану.">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav" data-page="cart">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap cartpage">
+      <nav class="crumbs" aria-label="Хлебные крошки">
+        <ol><li><a href="index.html">Главная</a></li><li>Корзина</li></ol>
+      </nav>
+      <div class="catalog__head">
+        <h1 class="h2">Корзина</h1>
+        <div class="catalog__count" id="cartCount"></div>
+      </div>
+      <div id="cartRoot"></div>
+    </div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "cart" });
+(function () {
+  var U = MMS.ui, S = MMS.store, esc = MMS.fmt.escape, $ = U.$;
+  var root = $("#cartRoot"), countEl = $("#cartCount");
+  var armed = false, tmr = null;
+
+  function orderDraft(items, total) {
+    return {
+      id: "— (черновик корзины)",
+      items: items.map(function (it) {
+        return { name: it.product.name, variant: it.variant, qty: it.qty, sum: it.sum };
+      }),
+      total: total
+    };
+  }
+
+  function itemByKey(items, k) {
+    return items.filter(function (x) { return x.key === k; })[0] || null;
+  }
+
+  function render() {
+    armed = false;
+    clearTimeout(tmr);
+    var items = S.bagItems("cart");
+    var total = S.bagTotal("cart");
+    var n = S.bagCount("cart");
+
+    countEl.textContent = items.length
+      ? n + " " + MMS.fmt.goodsWord(n) + " на " + MMS.fmt.price(total)
+      : "";
+
+    if (!items.length) {
+      root.innerHTML = U.emptyState({
+        icon: "cart",
+        title: "Корзина пуста",
+        text: "Добавьте товары из каталога или посмотрите избранное — всё сохранится на этом устройстве.",
+        cta: { href: "catalog.html", label: "Перейти в каталог" }
+      });
+      return;
+    }
+
+    var list = items.map(function (it) {
+      var p = it.product;
+      return '<div class="cart-item" data-key="' + esc(it.key) + '">' +
+        '<a class="cart-item__art" href="product.html?id=' + p.id + '" aria-label="' + esc(p.name) + '">' + U.artBlock(p) + "</a>" +
+        '<div class="cart-item__main">' +
+          '<div class="cart-item__name"><a href="product.html?id=' + p.id + '">' + esc(p.name) + "</a></div>" +
+          '<div class="cart-item__meta">' + esc(p.brand) + (it.variant ? " · " + esc(it.variant) : "") + " · " + esc(p.unit) + "</div>" +
+          '<div class="cart-item__meta">' + MMS.fmt.price(it.price) + " за единицу</div>" +
+          '<button class="cart-item__remove" type="button" data-cremove="' + esc(it.key) + '">' + MMS.icon("trash", 14) + "Удалить</button>" +
+        "</div>" +
+        '<div class="cart-item__side">' +
+          '<div class="qty qty--sm" aria-label="Количество">' +
+            '<button type="button" data-cdec="' + esc(it.key) + '" aria-label="Минус">' + MMS.icon("minus", 15) + "</button>" +
+            "<output>" + it.qty + "</output>" +
+            '<button type="button" data-cinc="' + esc(it.key) + '" aria-label="Плюс">' + MMS.icon("plus", 15) + "</button>" +
+          "</div>" +
+          '<div class="cart-item__sum">' + MMS.fmt.price(it.sum) + "</div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+
+    root.innerHTML =
+      '<div class="cart-layout">' +
+        '<div class="cart-list">' + list + "</div>" +
+        '<aside class="summary summary--sticky">' +
+          '<div class="summary__title">Ваш заказ</div>' +
+          '<div class="summary__row"><span>Товары (' + n + ")</span><b>" + MMS.fmt.price(total) + "</b></div>" +
+          '<div class="summary__row"><span>Доставка</span><b>Уточнит менеджер</b></div>' +
+          '<div class="summary__total"><span>Итого</span><b>' + MMS.fmt.price(total) + "</b></div>" +
+          '<div class="summary__note">Наличие, способ оплаты и условия доставки менеджер подтвердит после оформления заказа. Оплата — только после подтверждения.</div>' +
+          '<a class="btn btn--primary btn--lg btn--block" href="checkout.html">Оформить заказ</a>' +
+          '<a class="btn btn--ghost btn--block" id="waCart" target="_blank" rel="noopener" href="' + U.waLink(U.orderText(orderDraft(items, total))) + '">' + MMS.icon("wa", 17) + "Отправить в WhatsApp</a>" +
+          '<a class="btn btn--ghost btn--block" href="catalog.html">Продолжить покупки</a>' +
+          '<button class="btn btn--danger-text" id="clearCart" type="button">Очистить корзину</button>' +
+        "</aside>" +
+      "</div>";
+  }
+
+  root.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-cinc]");
+    if (b) {
+      var items = S.bagItems("cart");
+      var k = b.getAttribute("data-cinc");
+      var it = itemByKey(items, k);
+      if (it) S.setQty("cart", k, it.qty + 1);
+      return;
+    }
+    b = e.target.closest("[data-cdec]");
+    if (b) {
+      var k2 = b.getAttribute("data-cdec");
+      var it2 = itemByKey(S.bagItems("cart"), k2);
+      if (it2) S.setQty("cart", k2, it2.qty - 1);
+      return;
+    }
+    b = e.target.closest("[data-cremove]");
+    if (b) {
+      S.remove("cart", b.getAttribute("data-cremove"));
+      U.toast("Товар удалён из корзины");
+      return;
+    }
+    if (e.target.closest("#clearCart")) {
+      var btn = $("#clearCart");
+      if (!armed) {
+        armed = true;
+        btn.textContent = "Нажмите ещё раз, чтобы очистить";
+        btn.style.color = "var(--danger)";
+        tmr = setTimeout(function () { render(); }, 3200);
+        return;
+      }
+      S.clearBag("cart");
+      U.toast("Корзина очищена");
+      return;
+    }
+  });
+
+  S.on("cart", render);
+  render();
+})();
+</script>
+</body>
+</html>

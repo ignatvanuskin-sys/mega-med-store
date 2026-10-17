@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Страница не найдена — MegaMedStom Astana</title>
+<meta name="description" content="Такой страницы на сайте нет. Перейдите в каталог стоматологических товаров или свяжитесь с нами.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav" data-page="info">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap" style="padding-top:56px;padding-bottom:32px">
+      <h1 class="visually-hidden">Страница не найдена</h1>
+      <div id="e404"></div>
+      <p class="mt-2" style="text-align:center"><a class="btn btn--ghost btn--sm" href="index.html">На главную</a></p>
+    </div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "info" });
+document.getElementById("e404").innerHTML = MMS.ui.emptyState({
+  icon: "alert",
+  title: "Страница не найдена",
+  text: "Возможно, ссылка устарела или в адресе опечатка. Начните с каталога — там весь актуальный ассортимент, или свяжитесь с нами в WhatsApp.",
+  cta: { href: "catalog.html", label: "Перейти в каталог" }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Избранное — MegaMedStom Astana</title>
+<meta name="description" content="Избранные товары. Сохраняйте позиции, чтобы быстро вернуться к ним и добавить в корзину.">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav" data-page="fav">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap favpage">
+      <nav class="crumbs" aria-label="Хлебные крошки">
+        <ol><li><a href="index.html">Главная</a></li><li>Избранное</li></ol>
+      </nav>
+      <div class="catalog__head">
+        <div class="catalog__title-row">
+          <h1 class="h2">Избранное</h1>
+          <button class="btn btn--soft btn--sm" id="favAllToCart" type="button" hidden>Всё в корзину</button>
+        </div>
+        <div class="catalog__count" id="favCount"></div>
+      </div>
+      <div class="grid-products" id="favGrid"></div>
+    </div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "fav" });
+(function () {
+  var U = MMS.ui, S = MMS.store, $ = U.$;
+  var grid = $("#favGrid"), countEl = $("#favCount"), allBtn = $("#favAllToCart");
+
+  function render() {
+    var items = S.favItems();
+    if (!items.length) {
+      allBtn.hidden = true;
+      countEl.textContent = "";
+      grid.innerHTML = U.emptyState({
+        icon: "heart",
+        title: "В избранном пока пусто",
+        text: "Нажимайте на сердечко в карточках товаров — позиции будут ждать вас здесь.",
+        cta: { href: "catalog.html", label: "Перейти в каталог" }
+      });
+      return;
+    }
+    allBtn.hidden = false;
+    countEl.textContent = items.length + " " + MMS.fmt.goodsWord(items.length);
+    grid.innerHTML = items.map(U.productCard).join("");
+    U.syncCards();
+  }
+
+  allBtn.addEventListener("click", function () {
+    var items = S.favItems();
+    var added = 0, req = 0;
+    items.forEach(function (p) {
+      if (p.price == null) req++;
+      else { S.add("cart", p.id, null, 1); added++; }
+    });
+    if (added) U.toast("Добавлено в корзину: " + added + " " + MMS.fmt.goodsWord(added) + (req ? " · " + req + " по запросу — через страницу товара" : ""), { action: { label: "Корзина", href: "cart.html" } });
+    else if (req) U.toast("Позиции «по запросу» добавляются в «Список закупки» со страницы товара");
+    U.syncCards(); U.syncBadges();
+  });
+
+  S.on("fav", render);
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Товар — MegaMedStom Astana</title>
+<meta name="description" content="Характеристики, фасовки и условия заказа. Доставка по Казахстану, самовывоз в Астане.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="MegaMedStom Astana">
+<meta property="og:title" content="Товары для стоматологии — MegaMedStom Astana">
+<meta property="og:description" content="Характеристики, фасовки и условия заказа. Доставка по Казахстану, самовывоз в Астане.">
+<meta property="og:url" content="https://megamedstom.kz/catalog.html">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav page-product" data-page="product">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap product">
+      <nav class="crumbs" id="crumbs" aria-label="Хлебные крошки"></nav>
+      <div id="productRoot"></div>
+    </div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<!-- Панель покупки (мобильные) -->
+<div class="buybar" id="buybar" hidden>
+  <div class="buybar__price"><b id="barPrice">—</b><span id="barUnit"></span></div>
+  <button class="btn btn--primary" id="barAdd" type="button">В корзину</button>
+  <button class="buybar__heart" id="barFav" type="button" aria-label="В избранное"></button>
+</div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "product" });
+(function () {
+  var U = MMS.ui, S = MMS.store, Q = MMS.search, esc = MMS.fmt.escape, $ = U.$, $$ = U.$$;
+  var id = U.qsp("id");
+  var root = $("#productRoot");
+  var p = id ? S.product(id) : null;
+
+  if (!p) {
+    root.innerHTML = U.emptyState({
+      icon: "search",
+      title: "Товар не найден",
+      text: "Возможно, ссылка устарела или товар скрыт. Посмотрите каталог — там весь актуальный ассортимент.",
+      cta: { href: "catalog.html", label: "Перейти в каталог" }
+    });
+    $("#crumbs").innerHTML = '<ol style="display:flex;gap:8px"><li><a href="index.html">Главная</a></li><li>Каталог</li></ol>';
+    return;
+  }
+
+  S.recentPush(p.id);
+
+  var cat = MMS.CATEGORIES.filter(function (c) { return c.slug === p.cat; })[0];
+  var sub = cat ? cat.subs.filter(function (s) { return s.slug === p.sub; })[0] : null;
+  var hasVariants = !!(p.variants && p.variants.length);
+  var cur = { variant: hasVariants ? p.variants[0].label : "", qty: 1 };
+
+  /* ---------- SEO ---------- */
+  document.title = p.name + " — купить в Астане | MegaMedStom";
+  var md = document.querySelector('meta[name="description"]');
+  if (md) md.setAttribute("content", p.brand + ", " + p.unit + ". " + (p.desc || "").slice(0, 120));
+  var cn = document.querySelector('link[rel="canonical"]');
+  if (!cn) { cn = document.createElement("link"); cn.rel = "canonical"; document.head.appendChild(cn); }
+  cn.href = location.origin + "/product.html?id=" + encodeURIComponent(p.id);
+  var ogT = document.querySelector('meta[property="og:title"]');
+  if (ogT) ogT.setAttribute("content", p.name + " — купить в Астане | MegaMedStom");
+  var ogD = document.querySelector('meta[property="og:description"]');
+  if (ogD && md) ogD.setAttribute("content", md.getAttribute("content"));
+  var ogU = document.querySelector('meta[property="og:url"]');
+  if (ogU) ogU.setAttribute("content", cn.href);
+  (function () {
+    var ld = { "@context": "https://schema.org", "@type": "Product", name: p.name, sku: p.article, description: p.desc, brand: { "@type": "Brand", name: p.brand } };
+    if (p.price != null) ld.offers = { "@type": "Offer", price: p.price, priceCurrency: "KZT", url: cn.href };
+    var s = document.createElement("script"); s.type = "application/ld+json"; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
+    var bl = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Главная", item: location.origin + "/" }, { "@type": "ListItem", position: 2, name: "Каталог", item: location.origin + "/catalog.html" }] };
+    if (cat) bl.itemListElement.push({ "@type": "ListItem", position: 3, name: cat.name, item: location.origin + "/catalog.html?cat=" + cat.slug });
+    bl.itemListElement.push({ "@type": "ListItem", position: bl.itemListElement.length + 1, name: p.name });
+    var s2 = document.createElement("script"); s2.type = "application/ld+json"; s2.textContent = JSON.stringify(bl); document.head.appendChild(s2);
+  })();
+
+  /* ---------- крошки ---------- */
+  $("#crumbs").innerHTML = '<ol style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center">' +
+    '<li><a href="index.html">Главная</a></li><li><a href="catalog.html">Каталог</a></li>' +
+    (cat ? '<li><a href="catalog.html?cat=' + cat.slug + '">' + esc(cat.name) + "</a></li>" : "") +
+    (sub ? '<li><a href="catalog.html?cat=' + cat.slug + "&sub=" + sub.slug + '">' + esc(sub.name) + "</a></li>" : "") +
+    "<li>" + esc(p.name) + "</li></ol>";
+
+  /* ---------- страница ---------- */
+  function priceNow() { return S.priceOf(p, cur.variant); }
+
+  function variantsHtml() {
+    if (!hasVariants) return "";
+    return '<div class="varlist" role="group" aria-label="Фасовка">' + p.variants.map(function (v) {
+      return '<button type="button" class="varlist__btn' + (v.label === cur.variant ? " is-active" : "") + '" data-variant="' + esc(v.label) + '">' + esc(v.label) + (v.price !== p.price ? " · " + MMS.fmt.price(v.price) : "") + "</button>";
+    }).join("") + "</div>";
+  }
+
+  var buyHtml = p.price == null
+    ? '<div class="buyrow"><button class="btn btn--primary btn--lg btn--block" id="reqBtn" type="button">' + MMS.icon("send", 18) + "Запросить стоимость</button></div>" +
+      '<div class="pinfo__secondary"><a class="linkbtn" href="' + U.waLink("Здравствуйте! Интересует: " + p.name + " (" + p.article + "). Подскажите стоимость и сроки.") + '" target="_blank" rel="noopener">' + MMS.icon("wa", 17) + "Уточнить в WhatsApp</a></div>"
+    : '<div class="buyrow">' +
+        '<div class="qty" aria-label="Количество"><button type="button" id="qMinus" aria-label="Минус">' + MMS.icon("minus", 17) + '</button><output id="qOut">1</output><button type="button" id="qPlus" aria-label="Плюс">' + MMS.icon("plus", 17) + "</button></div>" +
+        '<button class="btn btn--primary btn--lg" id="addBtn" type="button">' + MMS.icon("cart", 19) + "В корзину</button>" +
+      "</div>" +
+      '<div class="pinfo__secondary">' +
+        '<button class="linkbtn" type="button" data-add-list="' + p.id + '">' + MMS.icon("list", 17) + "В список закупки</button>" +
+        '<button class="linkbtn" type="button" id="quickBtn">' + MMS.icon("spark", 17) + "Купить в один клик</button>" +
+        '<a class="linkbtn" href="' + U.waLink("Здравствуйте! Вопрос по товару: " + p.name + " (" + p.article + ")") + '" target="_blank" rel="noopener">' + MMS.icon("wa", 17) + "Написать менеджеру</a>" +
+      "</div>";
+
+  root.innerHTML =
+    '<div class="product__grid">' +
+      '<div class="gallery">' +
+        '<div class="gallery__main" id="galMain">' + U.artBlock(p) + "</div>" +
+      "</div>" +
+      '<div class="pinfo">' +
+        '<div class="pinfo__brandrow"><span class="pinfo__brand">' + esc(p.brand) + '</span><span class="pinfo__article">Артикул: ' + esc(p.article) + "</span>" + (p.isNew ? '<span class="badge badge--accent">Новинка</span>' : "") + "</div>" +
+        "<h1>" + esc(p.name) + "</h1>" +
+        '<div class="pinfo__price-row"><span class="pinfo__price" id="priceEl">' + U.priceHtml(p, priceNow()) + '</span><span class="pinfo__unit">' + esc(p.unit) + "</span></div>" +
+         '<div class="pinfo__avail"><i></i><span>Наличие подтвердит менеджер при обработке заказа</span></div>' +
+        variantsHtml() +
+        buyHtml +
+        '<div class="pinfo__facts">' +
+          '<div class="pinfo__fact"><span data-icon="pin" data-isize="17"></span><span><b>Самовывоз:</b> г. Астана, ул. Айнакол, 66</span></div>' +
+          '<div class="pinfo__fact"><span data-icon="truck" data-isize="17"></span><span><b>Доставка:</b> по всему Казахстану, условия подтвердит менеджер</span></div>' +
+          '<div class="pinfo__fact"><span data-icon="shield" data-isize="17"></span><span><b>Оплата:</b> после подтверждения заказа менеджером</span></div>' +
+          '<div class="pinfo__fact"><span data-icon="doc" data-isize="17"></span><span><b>Для клиник:</b> счёт на организацию по БИН</span></div>' +
+        "</div>" +
+        '<div class="acc" data-acc>' +
+          '<button class="acc__head" type="button" aria-expanded="false">Описание <span data-icon="chevR" data-isize="18"></span></button>' +
+          '<div class="acc__body"><p>' + esc(p.desc) + "</p><p>Актуальные цены и фасовки менеджер подтвердит при обработке заказа.</p></div>" +
+        "</div>" +
+        '<div class="acc" data-acc>' +
+          '<button class="acc__head" type="button" aria-expanded="false">Характеристики <span data-icon="chevR" data-isize="18"></span></button>' +
+          '<div class="acc__body"><table class="spectable"><tbody>' +
+            [["Производитель", p.brand], ["Артикул", p.article], ["Фасовка", p.unit]].concat(p.specs || []).map(function (row) {
+              return "<tr><td>" + esc(row[0]) + "</td><td>" + esc(row[1]) + "</td></tr>";
+            }).join("") +
+          "</tbody></table></div>" +
+        "</div>" +
+        '<div class="acc" data-acc>' +
+          '<button class="acc__head" type="button" aria-expanded="false">Доставка и оплата <span data-icon="chevR" data-isize="18"></span></button>' +
+          '<div class="acc__body"><p>Самовывоз со склада в Астане (ул. Айнакол, 66) или доставка по всему Казахстану. Стоимость и срок доставки менеджер подтверждает после оформления заказа.</p><p>Оплата — после подтверждения заказа: наличными, переводом или по счёту для организаций.</p></div>' +
+        "</div>" +
+      "</div>" +
+    "</div>" +
+    '<section class="section section--tight" id="relSec" hidden><div class="section-head"><h2 class="h2">Сопутствующие товары</h2><a class="section-head__link" href="catalog.html?cat=' + p.cat + '">Вся категория <span data-icon="chevR" data-isize="14"></span></a></div><div class="carousel" id="relRow"></div></section>' +
+    '<section class="section section--tight" id="recentSec" hidden><div class="section-head"><h2 class="h2">Вы недавно смотрели</h2></div><div class="carousel" id="recentRow"></div></section>';
+
+  /* иконки, вставленные через data-icon */
+  $$("[data-icon]").forEach(function (el) { el.innerHTML = MMS.icon(el.getAttribute("data-icon"), parseInt(el.getAttribute("data-isize"), 10) || 20); });
+
+  /* первая аккордеон-секция открыта */
+  var firstAcc = $("[data-acc]");
+  if (firstAcc) { firstAcc.classList.add("is-open"); firstAcc.querySelector(".acc__head").setAttribute("aria-expanded", "true"); }
+  $$("[data-acc] .acc__head").forEach(function (h) {
+    h.addEventListener("click", function () {
+      var acc = h.closest(".acc");
+      var open = acc.classList.toggle("is-open");
+      h.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  });
+
+  /* ---------- варианты и количество ---------- */
+  $$(".varlist__btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      cur.variant = b.getAttribute("data-variant");
+      $$(".varlist__btn").forEach(function (x) { x.classList.toggle("is-active", x === b); });
+      $("#priceEl").textContent = U.priceHtml(p, priceNow());
+      syncBar();
+    });
+  });
+  function syncQty() { var out = $("#qOut"); if (out) out.textContent = cur.qty; }
+  var qp = $("#qPlus"), qm = $("#qMinus");
+  if (qp) qp.addEventListener("click", function () { cur.qty = Math.min(999, cur.qty + 1); syncQty(); });
+  if (qm) qm.addEventListener("click", function () { cur.qty = Math.max(1, cur.qty - 1); syncQty(); });
+
+  /* ---------- покупка ---------- */
+  function doAdd() {
+    S.add("cart", p.id, cur.variant, cur.qty);
+    U.toast("В корзине: «" + p.name + "» × " + cur.qty, { action: { label: "Корзина", href: "cart.html" } });
+    U.syncBadges(); U.syncCards();
+  }
+  var addBtn = $("#addBtn");
+  if (addBtn) addBtn.addEventListener("click", doAdd);
+  var reqBtn = $("#reqBtn");
+  if (reqBtn) reqBtn.addEventListener("click", function () {
+    S.add("list", p.id, cur.variant, 1);
+    U.toast("Добавлено в список закупки", { action: { label: "Список", href: "profile.html" } });
+  });
+
+  /* быстрый заказ */
+  var quickBtn = $("#quickBtn");
+  if (quickBtn) quickBtn.addEventListener("click", function () {
+    var cst = S.customer();
+    var m = U.modal(
+      '<div class="modal__head"><div><div class="h3">Купить в один клик</div><div class="muted small mt-1">Менеджер свяжется, подтвердит наличие и стоимость доставки.</div></div><button class="sheet__close" type="button" data-close-modal aria-label="Закрыть">' + MMS.icon("x", 18) + "</button></div>" +
+      '<form id="quickForm" novalidate>' +
+        '<div class="field"><label class="field__label" for="qkName">Имя <b>*</b></label><input class="input" id="qkName" autocomplete="name" value="' + esc(cst.name || "") + '"><div class="field__error">Укажите имя</div></div>' +
+        '<div class="field"><label class="field__label" for="qkPhone">Телефон <b>*</b></label><input class="input input--phone" id="qkPhone" inputmode="tel" placeholder="+7 (___) ___-__-__" value="' + esc(cst.phone || "") + '"><div class="field__error">Укажите телефон полностью</div></div>' +
+        '<div class="muted small mb-2">' + esc(p.name) + (cur.variant ? " · " + esc(cur.variant) : "") + " × " + cur.qty + " — " + MMS.fmt.price(priceNow() * cur.qty) + "</div>" +
+        '<button class="btn btn--primary btn--block btn--lg" type="submit">Отправить заявку</button>' +
+        '<div class="checkout__submit-note">Нажимая кнопку, вы соглашаетесь на обработку данных для оформления заказа.</div>' +
+      "</form>"
+    );
+    U.maskPhone($("#qkPhone", m));
+    $("#quickForm", m).addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = $("#qkName", m).value.trim(), phone = $("#qkPhone", m).value.trim();
+      var ok = true;
+      if (name.length < 2) { $(".field", $("#qkName", m).parentNode).classList.add("has-error"); ok = false; }
+      if (!U.validPhone(phone)) { $(".field", $("#qkPhone", m).parentNode).classList.add("has-error"); ok = false; }
+      if (!ok) return;
+      S.customerSave({ name: name, phone: phone });
+      var order = S.orderCreate({
+        kind: "quick",
+        items: [{ id: p.id, name: p.name, variant: cur.variant, qty: cur.qty, unit: p.unit, art: p.art, price: priceNow(), sum: priceNow() * cur.qty }],
+        total: priceNow() * cur.qty,
+        customer: { name: name, phone: phone, city: MMS.CONFIG.company.city, delivery: "Уточняется менеджером", comment: "Быстрый заказ" }
+      });
+      m.querySelector(".modal__box").innerHTML =
+        '<div class="modal__head"><div><div class="h3">Заявка № ' + order.id + " создана</div>" +
+        '<div class="muted small mt-1">Отправьте её менеджеру одним нажатием — он подтвердит наличие и доставку.</div></div></div>' +
+        '<div class="success-actions" style="flex-direction:column">' +
+          '<a class="btn btn--primary btn--lg" target="_blank" rel="noopener" href="' + U.waLink(U.orderText(order)) + '">' + MMS.icon("wa", 19) + "Отправить в WhatsApp</a>" +
+          '<button class="btn btn--ghost" data-close-modal type="button">Позже</button>' +
+        "</div>";
+      U.syncBadges();
+    });
+  });
+
+  /* ---------- панель покупки (моб.) ---------- */
+  var bar = $("#buybar");
+  function syncBar() {
+    if (p.price == null) { $("#barPrice").textContent = "По запросу"; $("#barUnit").textContent = p.unit; $("#barAdd").innerHTML = MMS.icon("send", 18) + "Запросить"; }
+    else { $("#barPrice").textContent = MMS.fmt.price(priceNow()); $("#barUnit").textContent = p.unit; $("#barAdd").innerHTML = "В корзину"; }
+    var favOn = S.favHas(p.id);
+    var bf = $("#barFav");
+    bf.innerHTML = MMS.icon(favOn ? "heartFill" : "heart", 20);
+    bf.classList.toggle("is-active", favOn);
+  }
+  bar.hidden = false;
+  syncBar();
+  /* панель покупки выезжает, когда основная кнопка ушла за верх экрана */
+  (function () {
+    var anchor = $(".buyrow");
+    if (!anchor || !("IntersectionObserver" in window)) { bar.classList.add("is-visible"); return; }
+    new IntersectionObserver(function (entries) {
+      var e = entries[0];
+      bar.classList.toggle("is-visible", !e.isIntersecting && e.boundingClientRect.top < 0);
+    }, { rootMargin: "-70px 0px 0px 0px", threshold: 0 }).observe(anchor);
+  })();
+  $("#barAdd").addEventListener("click", function () { if (p.price == null) { S.add("list", p.id, cur.variant, 1); U.toast("Добавлено в список закупки", { action: { label: "Список", href: "profile.html" } }); } else doAdd(); });
+  $("#barFav").addEventListener("click", function () { S.favToggle(p.id); syncBar(); U.syncBadges(); });
+  S.on("fav", syncBar);
+
+  /* ---------- сопутствующие и недавние ---------- */
+  var all = S.products().filter(function (x) { return x.id !== p.id; });
+  var related = all.filter(function (x) { return x.sub === p.sub; });
+  if (related.length < 3) related = related.concat(all.filter(function (x) { return x.cat === p.cat && related.indexOf(x) < 0; }));
+  related = related.slice(0, 10);
+  if (related.length) { $("#relSec").hidden = false; $("#relRow").innerHTML = related.map(U.productCard).join(""); }
+  var recent = S.recentItems(p.id).slice(0, 10);
+  if (recent.length) { $("#recentSec").hidden = false; $("#recentRow").innerHTML = recent.map(U.productCard).join(""); }
+  U.syncCards(); U.syncBadges();
+})();
+</script>
+</body>
+</html>

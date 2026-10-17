@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заявка принята — MegaMedStom Astana</title>
+<meta name="description" content="Заказ сохранён. Отправьте его менеджеру в WhatsApp — он подтвердит наличие, доставку и способ оплаты.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav" data-page="success">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap successpage" id="successRoot"></div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "success" });
+(function () {
+  var U = MMS.ui, S = MMS.store, esc = MMS.fmt.escape, $ = U.$;
+  var root = $("#successRoot");
+  var id = U.qsp("id");
+  var order = id ? S.orderGet(id) : null;
+
+  var CONTACT = MMS.CONFIG.company;
+
+  if (!order) {
+    root.innerHTML =
+      '<div class="success-card">' +
+        '<div class="success-icon" style="background:var(--surface-2);color:var(--ink-2)">' + MMS.icon("info", 34) + "</div>" +
+        "<h1>Заказ не найден на этом устройстве</h1>" +
+        '<p class="muted">Заказ не найден. Заказы, оформленные на этом устройстве, отображаются в разделе «Мои заказы». Возможно, ссылка открыта с другого устройства или данные очищены.</p>' +
+        '<div class="success-actions">' +
+          '<a class="btn btn--primary btn--lg" href="catalog.html">Перейти в каталог</a>' +
+          '<a class="btn btn--ghost btn--lg" href="profile.html">Мои заказы</a>' +
+          '<a class="btn btn--ghost btn--lg" href="' + U.waLink("Здравствуйте! Уточняю статус заказа с сайта.") + '" target="_blank" rel="noopener">' + MMS.icon("wa", 17) + "Написать в WhatsApp</a>" +
+        "</div>" +
+      "</div>";
+    return;
+  }
+
+  /* этапы заказа */
+  var steps = MMS.STATUSES.filter(function (s) { return s.id !== "canceled"; });
+  var curIdx = steps.map(function (s) { return s.id; }).indexOf(order.status);
+  var canceled = order.status === "canceled";
+  var timeline = '<div class="timeline" role="list">' + steps.map(function (s, i) {
+    var cls = canceled ? "" : (i < curIdx ? "is-done" : (i === curIdx ? "is-current" : ""));
+    return '<div class="tl-step ' + cls + '" role="listitem"><i></i><b>' + esc(s.label) + "</b></div>";
+  }).join("") + "</div>" +
+  (canceled
+    ? '<div class="tl-note" style="color:var(--danger)">Заказ отменён. Если это ошибка — напишите нам в WhatsApp, восстановим заказ.</div>'
+    : '<div class="tl-note">Статус заказа обновляет менеджер после связи с вами.</div>');
+
+  var itemsHtml = '<div class="mini-items">' + order.items.map(function (it) {
+    var p = S.product(it.id);
+    return '<div class="mini-item">' +
+      '<span class="mini-item__art">' + (p ? U.artBlock(p) : "") + "</span>" +
+      '<span class="mini-item__info"><span class="mini-item__name">' + esc(it.name) + "</span>" +
+      '<span class="mini-item__meta">' + (it.variant ? esc(it.variant) + " · " : "") + "× " + it.qty + "</span></span>" +
+      '<span class="mini-item__sum">' + MMS.fmt.price(it.sum) + "</span></div>";
+  }).join("") + "</div>";
+
+  var cst = order.customer || {};
+  var detailsRows = [
+    ["Получение", cst.delivery || "—"],
+    cst.address ? ["Адрес", cst.address] : null,
+    cst.organization ? ["Организация", cst.organization + (cst.bin ? " · БИН " + cst.bin : "")] : null,
+    ["Контакт", (cst.name || "") + (cst.phone ? " · " + cst.phone : "")],
+    ["Дата", MMS.fmt.date(order.createdAt)]
+  ].filter(Boolean).map(function (r) {
+    return '<div class="summary__row"><span>' + esc(r[0]) + "</span><b>" + esc(r[1]) + "</b></div>";
+  }).join("");
+
+  root.innerHTML =
+    '<div class="success-card">' +
+      '<div class="success-icon">' + MMS.icon("check", 34) + "</div>" +
+      "<h1>Заявка принята!</h1>" +
+      '<p class="muted">Осталось отправить её менеджеру — нажмите кнопку WhatsApp. Менеджер подтвердит наличие, условия доставки и способ оплаты.</p>' +
+      '<div class="order-number">' + esc(order.id) +
+        '<button type="button" data-copy="' + esc(order.id) + '" data-copy-msg="Номер заказа скопирован" aria-label="Скопировать номер заказа">' + MMS.icon("copy", 15) + "</button></div>" +
+      '<p class="muted" style="font-size:12.5px">Сохраните номер — по нему менеджер найдёт заказ.</p>' +
+      '<div class="success-actions">' +
+        '<a class="btn btn--primary btn--lg" target="_blank" rel="noopener" href="' + U.waLink(U.orderText(order)) + '">' + MMS.icon("wa", 19) + "Отправить в WhatsApp</a>" +
+        '<a class="btn btn--ghost btn--lg" href="tel:' + CONTACT.phoneDial + '">' + MMS.icon("phone", 17) + "Позвонить</a>" +
+        '<a class="btn btn--ghost btn--lg" href="profile.html">Мои заказы</a>' +
+      "</div>" +
+      '<div class="success-details">' +
+        '<div class="summary__title">Состав заказа</div>' +
+        itemsHtml +
+        '<div class="summary__total"><span>Итого</span><b>' + MMS.fmt.price(order.total) + "</b></div>" +
+        '<div style="margin-top:10px">' + detailsRows + "</div>" +
+      "</div>" +
+      '<div style="margin-top:18px">' + timeline + "</div>" +
+      '<p class="muted" style="font-size:12px;margin-top:14px">Оплата на сайте не производится. После оформления менеджер свяжется с вами, подтвердит состав заказа и согласует оплату и доставку.</p>' +
+      '<div class="mt-2"><a class="linkbtn" href="catalog.html">Продолжить покупки ' + MMS.icon("chevR", 14) + "</a></div>" +
+    "</div>";
+})();
+</script>
+</body>
+</html>

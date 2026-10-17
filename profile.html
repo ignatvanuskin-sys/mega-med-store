@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кабинет покупателя — заказы и список закупки | MegaMedStom Astana</title>
+<meta name="description" content="История заказов, повторный заказ в один клик и «Список закупки» для клиник — запрос счёта менеджеру.">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav" data-page="profile">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap prof">
+      <nav class="crumbs" aria-label="Хлебные крошки">
+        <ol><li><a href="index.html">Главная</a></li><li>Кабинет</li></ol>
+      </nav>
+
+      <div class="prof__head">
+        <div class="prof__ava" id="profAva">MMS</div>
+        <div>
+          <h1 class="h2" id="profHello">Здравствуйте!</h1>
+          <div class="catalog__count">Заказы и список закупки сохраняются в вашем браузере</div>
+        </div>
+      </div>
+
+      <div class="segctl admin-tabs" id="profTabs" role="tablist">
+        <button type="button" data-tab="orders" class="is-active" role="tab">Мои заказы</button>
+        <button type="button" data-tab="list" role="tab">Список закупки <span id="listCnt"></span></button>
+      </div>
+
+      <div id="tabOrders"></div>
+      <div id="tabList" hidden></div>
+
+      <!-- Сохранённые данные и недавние -->
+      <section class="section" id="profExtra">
+        <div class="panel-grid">
+          <div class="panel-card">
+            <div class="form-card__title" style="margin-bottom:10px">Сохранённые данные</div>
+            <div id="savedData"></div>
+          </div>
+          <div class="panel-card">
+            <div class="form-card__title" style="margin-bottom:10px">Как хранятся данные</div>
+            <p class="muted" style="font-size:13.5px;line-height:1.6">Заказы, избранное и список закупки сохраняются в этом браузере. Статусы заказов и историю покупок подскажет менеджер — по телефону или в WhatsApp.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="recentSec" hidden>
+        <div class="section-head"><h2 class="h2">Вы недавно смотрели</h2></div>
+        <div class="carousel" id="recentRow"></div>
+      </section>
+    </div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "profile" });
+(function () {
+  var U = MMS.ui, S = MMS.store, esc = MMS.fmt.escape, $ = U.$;
+  var tabOrders = $("#tabOrders"), tabList = $("#tabList"), listCnt = $("#listCnt");
+  var listArmed = false, resetArmed = false;
+
+  /* ---------- вкладки ---------- */
+  $("#profTabs").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-tab]");
+    if (!b) return;
+    var t = b.getAttribute("data-tab");
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) { x.classList.toggle("is-active", x === b); });
+    tabOrders.hidden = t !== "orders";
+    tabList.hidden = t !== "list";
+  });
+
+  /* ---------- заказы ---------- */
+  function statusChip(st) {
+    return '<span class="status st-' + st + '"><i></i>' + esc(MMS.statusLabel(st)) + "</span>";
+  }
+  function orderCard(o) {
+    var names = o.items.slice(0, 3).map(function (it) {
+      return esc(it.name) + (it.variant ? " (" + esc(it.variant) + ")" : "") + " × " + it.qty;
+    }).join("<br>");
+    if (o.items.length > 3) names += "<br>и ещё " + (o.items.length - 3) + " поз.";
+    return '<div class="order-card">' +
+      '<div class="order-card__head">' +
+        '<span class="order-card__num">' + esc(o.id) + "</span>" +
+        '<span class="order-card__date">' + MMS.fmt.date(o.createdAt) + "</span>" +
+        statusChip(o.status) +
+      "</div>" +
+      '<div class="order-card__items">' + names + "</div>" +
+      '<div class="order-card__foot">' +
+        "<b>" + MMS.fmt.price(o.total) + "</b>" +
+        '<div class="row">' +
+          '<button class="btn btn--soft btn--sm" type="button" data-repeat="' + esc(o.id) + '">Повторить</button>' +
+          '<a class="btn btn--ghost btn--sm" href="success.html?id=' + encodeURIComponent(o.id) + '">Детали</a>' +
+          '<a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" aria-label="Отправить в WhatsApp" href="' + U.waLink(U.orderText(o)) + '">' + MMS.icon("wa", 15) + "</a>" +
+        "</div>" +
+      "</div></div>";
+  }
+  function renderOrders() {
+    var orders = S.ordersAll();
+    if (!orders.length) {
+      tabOrders.innerHTML = U.emptyState({
+        icon: "receipt",
+        title: "Заказов пока нет",
+        text: "Оформите первый заказ из корзины — он появится здесь, и его можно будет повторить в один клик.",
+        cta: { href: "catalog.html", label: "Перейти в каталог" }
+      });
+      return;
+    }
+    tabOrders.innerHTML = orders.map(orderCard).join("");
+  }
+  tabOrders.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-repeat]");
+    if (!b) return;
+    var o = S.orderGet(b.getAttribute("data-repeat"));
+    if (!o) return;
+    var added = 0;
+    o.items.forEach(function (it) {
+      var p = S.product(it.id);
+      if (!p) return;
+      if (p.price == null) S.add("list", it.id, it.variant, it.qty);
+      else { S.add("cart", it.id, it.variant, it.qty); added++; }
+    });
+    U.syncBadges();
+    U.toast(added ? "Добавлено в корзину: " + added + " " + MMS.fmt.goodsWord(added) : "Позиции добавлены в список закупки", { action: { label: "Корзина", href: "cart.html" } });
+  });
+
+  /* ---------- список закупки ---------- */
+  function listRow(it) {
+    var p = it.product;
+    var priceTxt = it.price == null ? "По запросу" : MMS.fmt.price(it.price);
+    var sumTxt = it.price == null ? "—" : MMS.fmt.price(it.sum);
+    return '<div class="cart-item">' +
+      '<a class="cart-item__art" href="product.html?id=' + p.id + '" aria-label="' + esc(p.name) + '">' + U.artBlock(p) + "</a>" +
+      "<div>" +
+        '<div class="cart-item__name"><a href="product.html?id=' + p.id + '">' + esc(p.name) + "</a></div>" +
+        '<div class="cart-item__meta">' + esc(p.brand) + (it.variant ? " · " + esc(it.variant) : "") + " · " + esc(p.unit) + "</div>" +
+        '<div class="cart-item__meta">' + priceTxt + " за единицу</div>" +
+        '<button class="cart-item__remove" type="button" data-lremove="' + esc(it.key) + '">' + MMS.icon("trash", 14) + "Убрать</button>" +
+      "</div>" +
+      '<div class="cart-item__side">' +
+        '<div class="qty qty--sm" aria-label="Количество">' +
+          '<button type="button" data-ldec="' + esc(it.key) + '" aria-label="Минус">' + MMS.icon("minus", 15) + "</button>" +
+          "<output>" + it.qty + "</output>" +
+          '<button type="button" data-linc="' + esc(it.key) + '" aria-label="Плюс">' + MMS.icon("plus", 15) + "</button>" +
+        "</div>" +
+        '<div class="cart-item__sum">' + sumTxt + "</div>" +
+      "</div></div>";
+  }
+  function renderList() {
+    var items = S.bagItems("list");
+    var n = S.bagCount("list");
+    listCnt.textContent = n ? "· " + n : "";
+    if (!items.length) {
+      listArmed = false;
+      tabList.innerHTML = U.emptyState({
+        icon: "list",
+        title: "Список закупки пуст",
+        text: "Соберите нужные позиции (в том числе «по запросу») и отправьте менеджеру запрос на счёт одним нажатием.",
+        cta: { href: "catalog.html", label: "Перейти в каталог" }
+      }) +
+      '<div class="row" style="justify-content:center;margin-top:14px"><button class="btn btn--ghost" type="button" id="startKitBtn">' + MMS.icon("plus", 16) + "Добавить стартовый набор кабинета</button></div>";
+      return;
+    }
+    var total = S.bagTotal("list");
+    var priced = items.filter(function (x) { return x.price != null; }).length;
+    var waOrder = {
+      id: "— (список закупки)",
+      items: items.map(function (it) { return { name: it.product.name, variant: it.variant, qty: it.qty, sum: it.sum }; }),
+      total: total
+    };
+    tabList.innerHTML =
+      '<div class="cart-list" style="margin-bottom:14px">' + items.map(listRow).join("") + "</div>" +
+      '<div class="summary">' +
+        '<div class="summary__row"><span>Позиций</span><b>' + n + "</b></div>" +
+        '<div class="summary__row"><span>С ценой</span><b>' + priced + " из " + items.length + "</b></div>" +
+        '<div class="summary__total"><span>Сумма (по позициям с ценой)</span><b>' + MMS.fmt.price(total) + "</b></div>" +
+        '<div class="summary__note">Позиции «по запросу» менеджер оценит отдельно. Для клиник счёт оформляется на организацию по БИН — напишите его в комментарии к запросу.</div>' +
+        '<a class="btn btn--primary btn--lg btn--block" target="_blank" rel="noopener" href="' + U.waLink(U.orderText(waOrder, "quote")) + '">' + MMS.icon("wa", 18) + "Запросить счёт в WhatsApp</a>" +
+        '<button class="btn btn--danger-text btn--block" type="button" id="listClear">Очистить список</button>' +
+      "</div>";
+  }
+  tabList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-linc]");
+    if (b) {
+      var k = b.getAttribute("data-linc");
+      var it = S.bagItems("list").filter(function (x) { return x.key === k; })[0];
+      if (it) S.setQty("list", k, it.qty + 1);
+      return;
+    }
+    b = e.target.closest("[data-ldec]");
+    if (b) {
+      var k2 = b.getAttribute("data-ldec");
+      var it2 = S.bagItems("list").filter(function (x) { return x.key === k2; })[0];
+      if (it2) S.setQty("list", k2, it2.qty - 1);
+      return;
+    }
+    b = e.target.closest("[data-lremove]");
+    if (b) { S.remove("list", b.getAttribute("data-lremove")); U.toast("Позиция убрана из списка"); return; }
+    if (e.target.closest("#startKitBtn")) {
+      (MMS.START_KIT || []).forEach(function (id) { S.add("list", id, "", 1); });
+      U.toast("Стартовый набор добавлен в список закупки");
+      return;
+    }
+    if (e.target.closest("#listClear")) {
+      var btn = $("#listClear");
+      if (!listArmed) {
+        listArmed = true;
+        btn.textContent = "Нажмите ещё раз, чтобы очистить";
+        btn.style.color = "var(--danger)";
+        setTimeout(renderList, 3200);
+        return;
+      }
+      S.clearBag("list");
+      U.toast("Список закупки очищен");
+      return;
+    }
+  });
+
+  /* ---------- сохранённые данные ---------- */
+  function renderSaved() {
+    var c = S.customer();
+    var rows = [];
+    if (c.name) rows.push(["Имя", c.name]);
+    if (c.phone) rows.push(["Телефон", c.phone]);
+    if (c.email) rows.push(["Email", c.email]);
+    if (c.organization) rows.push(["Организация", c.organization]);
+    if (c.address) rows.push(["Адрес", c.address]);
+    $("#savedData").innerHTML = (rows.length
+      ? rows.map(function (r) { return '<div class="summary__row"><span>' + esc(r[0]) + "</span><b>" + esc(r[1]) + "</b></div>"; }).join("")
+      : '<p class="muted" style="font-size:13.5px">Пока пусто — данные появятся после первого оформления заказа.</p>') +
+      '<div class="mt-2 stack">' +
+        '<button class="btn btn--ghost btn--sm" type="button" id="exportBtn">' + MMS.icon("download", 15) + "Скачать мои данные (JSON)</button>" +
+        (rows.length ? '<button class="btn btn--danger-text" type="button" id="wipeBtn">Удалить сохранённые данные</button>' : "") +
+      "</div>";
+  }
+  $("#profExtra").addEventListener("click", function (e) {
+    if (e.target.closest("#exportBtn")) {
+      var data = JSON.stringify({
+        exportedAt: new Date().toISOString(),
+        customer: S.customer(),
+        orders: S.ordersAll(),
+        cart: S.bagItems("cart").map(function (x) { return { id: x.product.id, variant: x.variant, qty: x.qty }; }),
+        list: S.bagItems("list").map(function (x) { return { id: x.product.id, variant: x.variant, qty: x.qty }; }),
+        fav: S.favItems().map(function (p) { return p.id; })
+      }, null, 2);
+      try {
+        var blob = new Blob([data], { type: "application/json" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "megamedstom-my-data.json";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+        U.toast("Файл с вашими данными сохранён");
+      } catch (err) { U.toast("Не удалось скачать файл", { type: "error" }); }
+      return;
+    }
+    if (e.target.closest("#wipeBtn")) {
+      var btn = $("#wipeBtn");
+      if (!resetArmed) {
+        resetArmed = true;
+        btn.textContent = "Нажмите ещё раз — удалим всё";
+        setTimeout(renderSaved, 3200);
+        return;
+      }
+      S.resetAll();
+      U.toast("Данные удалены");
+      setTimeout(function () { location.reload(); }, 500);
+      return;
+    }
+  });
+
+  /* ---------- шапка и недавние ---------- */
+  function renderHello() {
+    var c = S.customer();
+    if (c.name) {
+      $("#profHello").textContent = "Здравствуйте, " + c.name.split(" ")[0] + "!";
+      $("#profAva").textContent = c.name.trim().charAt(0).toUpperCase() || "MMS";
+    }
+  }
+  function renderRecent() {
+    var items = S.recentItems().slice(0, 10);
+    var sec = $("#recentSec");
+    if (!items.length) { sec.hidden = true; return; }
+    sec.hidden = false;
+    $("#recentRow").innerHTML = items.map(U.productCard).join("");
+    U.syncCards();
+  }
+
+  S.on("orders", function () { renderOrders(); });
+  S.on("list", renderList);
+  renderOrders(); renderList(); renderSaved(); renderHello(); renderRecent();
+})();
+</script>
+</body>
+</html>

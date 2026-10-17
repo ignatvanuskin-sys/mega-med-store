@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Панель менеджера — MegaMedStom Astana</title>
+<meta name="description" content="Панель менеджера: заказы, статусы, товары, экспорт данных.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav" data-page="admin">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap admin">
+      <nav class="crumbs" aria-label="Хлебные крошки">
+        <ol><li><a href="index.html">Главная</a></li><li>Панель менеджера</li></ol>
+      </nav>
+      <h1 class="visually-hidden">Панель менеджера</h1>
+      <div id="adminRoot"></div>
+    </div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "admin" });
+(function () {
+  var U = MMS.ui, S = MMS.store, esc = MMS.fmt.escape, $ = U.$;
+  var root = $("#adminRoot");
+  var PASS = MMS.CONFIG.demo.adminPass;
+
+  function authed() { try { return sessionStorage.getItem("mms_admin") === "1"; } catch (e) { return false; } }
+  function setAuthed() { try { sessionStorage.setItem("mms_admin", "1"); } catch (e) {} }
+  function logout() { try { sessionStorage.removeItem("mms_admin"); } catch (e) {} render(); }
+
+  /* ---------- вход ---------- */
+  function renderGate() {
+    root.innerHTML =
+      '<div class="admin__gate">' + MMS.icon("lock", 30) +
+        '<div class="h3">Панель менеджера</div>' +
+        '<p class="muted" style="font-size:13px;margin:8px 0 16px;line-height:1.55">Введите пароль, чтобы открыть заказы, товары и экспорт данных.</p>' +
+        '<form id="gateForm" novalidate>' +
+          '<div class="field"><input class="input" type="password" id="gatePass" placeholder="Пароль" autocomplete="current-password" aria-label="Пароль"></div>' +
+          '<button class="btn btn--primary btn--block" type="submit">Войти</button>' +
+        "</form>" +
+      "</div>";
+    $("#gateForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var inp = $("#gatePass");
+      if (inp.value === PASS) { setAuthed(); render(); }
+      else { inp.classList.add("is-error"); U.toast("Неверный пароль", { type: "error" }); inp.focus(); }
+    });
+  }
+
+  /* ---------- панель ---------- */
+  var tab = "orders";
+  var prodQuery = "";
+  var resetArmed = false;
+
+  function statsHtml() {
+    var orders = S.ordersAll();
+    var newCnt = orders.filter(function (o) { return o.status === "new"; }).length;
+    var sum = orders.reduce(function (s, o) { return s + (o.total || 0); }, 0);
+    var pads = S.products().length;
+    var cards = [
+      ["Заказов", orders.length],
+      ["Новых", newCnt],
+      ["Сумма заказов", MMS.fmt.price(sum)],
+      ["Товаров в каталоге", pads]
+    ];
+    return '<div class="admin__stats">' + cards.map(function (c) {
+      return '<div class="panel-card"><div class="h2">' + esc(String(c[1])) + '</div><div class="muted" style="font-size:12.5px;margin-top:4px">' + esc(c[0]) + "</div></div>";
+    }).join("") + "</div>";
+  }
+
+  function waClientLink(o) {
+    var digits = String((o.customer && o.customer.phone) || "").replace(/\D/g, "");
+    if (!digits) return '<span class="table__sub">нет телефона</span>';
+    if (digits.length === 10) digits = "7" + digits;
+    if (digits.length === 11 && digits.charAt(0) === "8") digits = "7" + digits.slice(1);
+    return '<a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="https://wa.me/' + digits + "?text=" + encodeURIComponent(U.orderText(o)) + '">' + MMS.icon("wa", 14) + "Клиенту</a>";
+  }
+
+  function ordersHtml() {
+    var orders = S.ordersAll();
+    if (!orders.length) {
+      return '<div class="panel-card">' + U.emptyState({
+        icon: "receipt",
+        title: "Заказов пока нет",
+        text: "Оформите тестовый заказ через сайт — он появится здесь, и вы сможете управлять его статусом."
+      }) + "</div>";
+    }
+    return '<div class="tablewrap"><table class="table table--cards"><thead><tr>' +
+      "<th>№</th><th>Дата</th><th>Клиент</th><th>Сумма</th><th>Статус</th><th>Действия</th>" +
+      "</tr></thead><tbody>" + orders.map(function (o) {
+        var cst = o.customer || {};
+        return "<tr>" +
+          '<td data-th="№ заказа"><a class="linkbtn" href="success.html?id=' + encodeURIComponent(o.id) + '">' + esc(o.id) + "</a>" +
+          '<div class="table__sub">' + esc(cst.delivery || "") + "</div></td>" +
+          '<td data-th="Дата">' + MMS.fmt.dateShort(o.createdAt) + "</td>" +
+          '<td data-th="Клиент">' + esc(cst.name || "—") + '<div class="table__sub">' + esc(cst.phone || "") + (cst.organization ? " · " + esc(cst.organization) : "") + "</div></td>" +
+          '<td data-th="Сумма"><b>' + MMS.fmt.price(o.total) + "</b></td>" +
+          '<td data-th="Статус"><select class="select" data-ostat="' + esc(o.id) + '">' +
+            MMS.STATUSES.map(function (s) {
+              return '<option value="' + s.id + '"' + (o.status === s.id ? " selected" : "") + ">" + esc(s.label) + "</option>";
+            }).join("") + "</select></td>" +
+          '<td data-th="Действия"><div class="row" style="gap:6px">' + waClientLink(o) + "</div></td>" +
+        "</tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+
+  function productsHtml() {
+    var prods = S.products();
+    var q = MMS.search.norm(prodQuery);
+    if (q) prods = prods.filter(function (p) {
+      return MMS.search.norm(p.name + " " + p.article + " " + p.brand).indexOf(q) >= 0;
+    });
+    var edited = S.raw().prodEdits;
+    return '<div class="row" style="margin-bottom:12px;gap:10px;flex-wrap:wrap">' +
+        '<input class="input" id="adminProdSearch" aria-label="Поиск по товарам: название, артикул, бренд" placeholder="Поиск: название, артикул, бренд" style="max-width:320px" value="' + esc(prodQuery) + '">' +
+        '<span class="muted" style="font-size:12.5px">' + prods.length + " " + MMS.fmt.goodsWord(prods.length) + "</span>" +
+      "</div>" +
+      '<div class="tablewrap"><table class="table table--cards"><thead><tr>' +
+        "<th>Артикул</th><th>Название</th><th>Цена, ₸</th><th>Новинка</th><th></th>" +
+      "</tr></thead><tbody>" + prods.map(function (p) {
+        var isEdited = !!edited[p.id];
+        return '<tr data-prow="' + esc(p.id) + '">' +
+          '<td data-th="Артикул">' + esc(p.article) + '<div class="table__sub">' + esc(p.brand) + "</div></td>" +
+          '<td data-th="Название"><input class="input" style="width:100%;min-width:180px" data-pname="' + esc(p.id) + '" aria-label="Название товара ' + esc(p.article) + '" value="' + esc(p.name) + '"></td>' +
+          '<td data-th="Цена, ₸"><input class="input" type="number" min="0" step="1" data-pprice="' + esc(p.id) + '" aria-label="Цена товара ' + esc(p.article) + '" placeholder="По запросу" value="' + (p.price == null ? "" : p.price) + '"></td>' +
+          '<td data-th="Новинка"><input type="checkbox" data-pnew="' + esc(p.id) + '"' + (p.isNew ? " checked" : "") + ' aria-label="Новинка"></td>' +
+          "<td>" + (isEdited ? '<button class="btn btn--ghost btn--sm" type="button" data-preset="' + esc(p.id) + '">Сбросить</button>' : "") + "</td>" +
+        "</tr>";
+      }).join("") + "</tbody></table></div>" +
+      '<p class="muted" style="font-size:12px;margin-top:12px;line-height:1.6">Правки сохраняются в этом браузере и применяются к каталогу сразу. В рабочей версии эти изменения будут записываться в базу данных, а каталог — загружаться из CSV/выгрузки.</p>';
+  }
+
+  function dataHtml() {
+    return '<div class="panel-grid">' +
+      '<div class="panel-card">' +
+        '<div class="form-card__title" style="margin-bottom:10px">Экспорт</div>' +
+        '<p class="muted" style="font-size:13px;line-height:1.6;margin-bottom:12px">Выгрузка каталога и всех локальных данных (заказы, корзина, список закупки, правки) в JSON — для переноса между устройствами или передачи в разработку.</p>' +
+        '<button class="btn btn--primary" type="button" id="expBtn">' + MMS.icon("download", 16) + "Скачать JSON</button>" +
+      "</div>" +
+      '<div class="panel-card">' +
+        '<div class="form-card__title" style="margin-bottom:10px">Импорт</div>' +
+        '<p class="muted" style="font-size:13px;line-height:1.6;margin-bottom:12px">Загрузите ранее сохранённый JSON — данные восстановятся на этом устройстве.</p>' +
+        '<input type="file" id="impFile" accept="application/json" hidden>' +
+        '<button class="btn btn--ghost" type="button" id="impBtn">' + MMS.icon("upload", 16) + "Загрузить JSON</button>" +
+      "</div>" +
+      '<div class="panel-card">' +
+        '<div class="form-card__title" style="margin-bottom:10px">Сброс данных</div>' +
+        '<p class="muted" style="font-size:13px;line-height:1.6;margin-bottom:12px">Удаляет заказы, корзину, избранное, список закупки и правки товаров. Каталог вернётся к исходному состоянию.</p>' +
+        '<button class="btn btn--danger-text" type="button" id="resetBtn">Очистить все данные</button>' +
+      "</div>" +
+      "<div class=\"panel-card\">" +
+        '<div class="form-card__title" style="margin-bottom:10px">Что дальше</div>' +
+        '<p class="muted" style="font-size:13px;line-height:1.6">Данные можно выгрузить в JSON и передать в учётную систему. Уведомления о новых заказах, прайс-лист из 1С/CSV и печать счёта — в следующих обновлениях.</p>' +
+      "</div>" +
+    "</div>";
+  }
+
+  function render() {
+    if (!authed()) { renderGate(); return; }
+    root.innerHTML =
+      '<div class="admin__head">' +
+        '<div class="h2">Панель менеджера</div>' +
+        '<button class="btn btn--ghost btn--sm" type="button" id="logoutBtn" style="margin-left:auto">Выйти</button>' +
+      "</div>" +
+      statsHtml() +
+      '<div class="segctl admin-tabs" id="adminTabs">' +
+        '<button type="button" data-atab="orders" class="' + (tab === "orders" ? "is-active" : "") + '">Заказы</button>' +
+        '<button type="button" data-atab="products" class="' + (tab === "products" ? "is-active" : "") + '">Товары</button>' +
+        '<button type="button" data-atab="data" class="' + (tab === "data" ? "is-active" : "") + '">Данные</button>' +
+      "</div>" +
+      '<div id="adminBody">' + (tab === "orders" ? ordersHtml() : tab === "products" ? productsHtml() : dataHtml()) + "</div>";
+  }
+
+  /* ---------- события панели ---------- */
+  root.addEventListener("click", function (e) {
+    if (e.target.closest("#logoutBtn")) { logout(); return; }
+    var t = e.target.closest("[data-atab]");
+    if (t) { tab = t.getAttribute("data-atab"); root.querySelectorAll("[data-atab]").forEach(function (x) { x.classList.toggle("is-active", x === t); }); $("#adminBody").innerHTML = tab === "orders" ? ordersHtml() : tab === "products" ? productsHtml() : dataHtml(); return; }
+    var rs = e.target.closest("[data-preset]");
+    if (rs) { S.prodReset(rs.getAttribute("data-preset")); U.toast("Правки товара сброшены"); $("#adminBody").innerHTML = productsHtml(); return; }
+    if (e.target.closest("#expBtn")) {
+      try {
+        var blob = new Blob([S.exportAll()], { type: "application/json" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "megamedstom-data.json";
+        document.body.appendChild(a); a.click(); a.remove();
+        U.toast("Файл сохранён");
+      } catch (err) { U.toast("Не удалось скачать файл", { type: "error" }); }
+      return;
+    }
+    if (e.target.closest("#impBtn")) { $("#impFile").click(); return; }
+    if (e.target.closest("#resetBtn")) {
+      var btn = $("#resetBtn");
+      if (!resetArmed) { resetArmed = true; btn.textContent = "Нажмите ещё раз — удалим всё"; setTimeout(function () { resetArmed = false; render(); }, 3200); return; }
+      S.resetAll(); resetArmed = false; U.toast("Данные очищены"); render(); return;
+    }
+  });
+
+  root.addEventListener("change", function (e) {
+    var t = e.target;
+    var sel = t.closest("[data-ostat]");
+    if (sel) {
+      var id = sel.getAttribute("data-ostat");
+      var label = MMS.statusLabel(sel.value);
+      S.orderUpdate(id, { status: sel.value });
+      render();
+      U.toast("Статус заказа " + id + ": " + label);
+      return;
+    }
+    var pn = t.closest("[data-pname]");
+    if (pn) { S.prodEdit(pn.getAttribute("data-pname"), { name: pn.value.trim() || "Без названия" }); U.toast("Название сохранено"); return; }
+    var pp = t.closest("[data-pprice]");
+    if (pp) {
+      var v = pp.value.trim();
+      var price = v === "" ? null : Math.max(0, parseInt(v, 10) || 0);
+      pp.value = price == null ? "" : price;
+      S.prodEdit(pp.getAttribute("data-pprice"), { price: price });
+      U.toast(price == null ? "Цена снята: «по запросу»" : "Цена сохранена: " + MMS.fmt.price(price));
+      return;
+    }
+    var pnew = t.closest("[data-pnew]");
+    if (pnew) { S.prodEdit(pnew.getAttribute("data-pnew"), { isNew: pnew.checked }); U.toast("Отмечено"); return; }
+    if (t.id === "impFile" && t.files && t.files[0]) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        try { S.importAll(String(fr.result)); U.toast("Данные импортированы"); render(); }
+        catch (err) { U.toast("Не удалось прочитать файл", { type: "error" }); }
+      };
+      fr.readAsText(t.files[0]);
+      return;
+    }
+  });
+
+  root.addEventListener("input", function (e) {
+    if (e.target.id === "adminProdSearch") {
+      prodQuery = e.target.value;
+      var focusBack = e.target;
+      $("#adminBody").innerHTML = productsHtml();
+      var ni = $("#adminProdSearch");
+      if (ni) { ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); }
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

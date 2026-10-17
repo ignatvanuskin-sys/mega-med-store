@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Оформление заказа — MegaMedStom Astana</title>
+<meta name="description" content="Оформите заказ без регистрации: контакты, способ получения, комментарий. Менеджер подтвердит наличие и условия доставки.">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#F5F5F2">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/shop.css">
+</head>
+<body class="has-bottom-nav" data-page="checkout">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<div class="page">
+  <div id="chromeTop"></div>
+  <main id="main" class="page__main">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Хлебные крошки">
+        <ol><li><a href="index.html">Главная</a></li><li><a href="cart.html">Корзина</a></li><li>Оформление</li></ol>
+      </nav>
+      <div class="catalog__head">
+        <h1 class="h2">Оформление заказа</h1>
+        <div class="catalog__count" id="coCount"></div>
+      </div>
+      <div id="coRoot"></div>
+    </div>
+  </main>
+  <div id="chromeFooter"></div>
+</div>
+<div id="bottomNav"></div>
+
+<script src="js/base.js"></script>
+<script src="js/art.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/search.js"></script>
+<script src="js/ui.js"></script>
+<script>
+MMS.ui.init({ page: "checkout" });
+(function () {
+  var U = MMS.ui, S = MMS.store, esc = MMS.fmt.escape, $ = U.$;
+  var root = $("#coRoot"), countEl = $("#coCount");
+  var sending = false;
+
+  var items = S.bagItems("cart");
+  var total = S.bagTotal("cart");
+  var n = S.bagCount("cart");
+
+  if (!items.length) {
+    countEl.textContent = "";
+    root.innerHTML = U.emptyState({
+      icon: "cart",
+      title: "Корзина пуста — оформлять нечего",
+      text: "Сначала добавьте товары в корзину. Если нужен счёт для клиники — соберите «Список закупки» в профиле.",
+      cta: { href: "catalog.html", label: "Перейти в каталог" }
+    });
+    return;
+  }
+
+  countEl.textContent = n + " " + MMS.fmt.goodsWord(n) + " на " + MMS.fmt.price(total);
+  var c = S.customer();
+
+  var mini = items.map(function (it) {
+    var p = it.product;
+    return '<div class="mini-item">' +
+      '<span class="mini-item__art">' + U.artBlock(p) + "</span>" +
+      '<span class="mini-item__info"><span class="mini-item__name">' + esc(p.name) + "</span>" +
+      '<span class="mini-item__meta">' + (it.variant ? esc(it.variant) + " · " : "") + "× " + it.qty + "</span></span>" +
+      '<span class="mini-item__sum">' + MMS.fmt.price(it.sum) + "</span></div>";
+  }).join("");
+
+  var draftText = U.orderText({
+    id: "— (черновик заказа)",
+    items: items.map(function (it) { return { name: it.product.name, variant: it.variant, qty: it.qty, sum: it.sum }; }),
+    total: total
+  });
+
+  root.innerHTML =
+    '<form id="coForm" class="checkout-layout" novalidate>' +
+      "<div>" +
+        '<div class="form-card">' +
+          '<div class="form-card__title"><span class="step-n">1</span>Контактные данные</div>' +
+          '<div class="field"><label class="field__label" for="coName">ФИО <b>*</b></label>' +
+            '<input class="input" id="coName" autocomplete="name" placeholder="Как к вам обращаться" value="' + esc(c.name || "") + '">' +
+            '<div class="field__error">Укажите имя (минимум 2 символа)</div></div>' +
+          '<div class="frow frow--2">' +
+            '<div class="field"><label class="field__label" for="coPhone">Телефон <b>*</b></label>' +
+              '<input class="input input--phone" id="coPhone" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" value="' + esc(c.phone || "") + '">' +
+              '<div class="field__error">Введите номер полностью</div></div>' +
+            '<div class="field"><label class="field__label" for="coEmail">Email</label>' +
+              '<input class="input" id="coEmail" type="email" autocomplete="email" placeholder="Необязательно — для счёта и документов" value="' + esc(c.email || "") + '">' +
+              '<div class="field__error">Проверьте адрес почты</div></div>' +
+          "</div>" +
+          '<label class="switchrow license-toggle"><input type="checkbox" id="coOrg"' + (c.organization ? " checked" : "") + ">Заказ для клиники — нужен счёт на организацию</label>" +
+          '<div id="orgWrap"' + (c.organization ? "" : " hidden") + ">" +
+            '<div class="frow frow--2">' +
+              '<div class="field"><label class="field__label" for="coOrgName">Название организации</label>' +
+                '<input class="input" id="coOrgName" autocomplete="organization" placeholder="ТОО / ИП / клиника" value="' + esc(c.organization || "") + '">' +
+                '<div class="field__error">Укажите название организации</div></div>' +
+              '<div class="field"><label class="field__label" for="coBin">БИН</label>' +
+                '<input class="input" id="coBin" inputmode="numeric" placeholder="12 цифр" value="' + esc(c.bin || "") + '">' +
+                '<div class="field__error">БИН — 12 цифр</div></div>' +
+            "</div>" +
+          "</div>" +
+        "</div>" +
+
+        '<div class="form-card">' +
+          '<div class="form-card__title"><span class="step-n">2</span>Способ получения</div>' +
+          '<div class="optlist" id="delList">' +
+            '<label class="opt"><input type="radio" name="del" value="pickup" checked>' +
+              "<span><b>Самовывоз — бесплатно</b>" +
+              "<span>г. Астана, ул. Айнакол, 66 · Пн–Пт 09:00–17:30</span></span></label>" +
+            '<label class="opt"><input type="radio" name="del" value="astana">' +
+              "<span><b>Доставка по Астане</b>" +
+              "<span>Курьером. Стоимость и время подтвердит менеджер</span></span></label>" +
+            '<label class="opt"><input type="radio" name="del" value="kz">' +
+              "<span><b>Доставка по Казахстану</b>" +
+              "<span>Транспортной компанией. Условия подтвердит менеджер</span></span></label>" +
+          "</div>" +
+          '<div class="field mt-2" id="addrWrap" hidden><label class="field__label" for="coAddr">Адрес / город и пункт выдачи <b>*</b></label>' +
+            '<input class="input" id="coAddr" autocomplete="street-address" placeholder="Например: Астана, ул. Кабанбай батыра 15, офис 3" value="' + esc(c.address || "") + '">' +
+            '<div class="field__error">Укажите адрес доставки</div></div>' +
+          '<div class="field"><label class="field__label" for="coComment">Комментарий к заказу</label>' +
+            '<textarea class="textarea" id="coComment" placeholder="Например: нужен счёт на организацию, удобно получить после 15:00"></textarea></div>' +
+        "</div>" +
+
+        '<div class="form-card">' +
+          '<div class="form-card__title"><span class="step-n">3</span>Подтверждение</div>' +
+          '<label class="consent" id="consentWrap"><input type="checkbox" id="coConsent">' +
+            "<span>Согласен(а) на обработку персональных данных для оформления заказа — согласно <a href='privacy.html' target='_blank'>политике конфиденциальности</a>. <b style='color:var(--danger)'>*</b></span></label>" +
+          '<div class="checkout__submit-note mt-1">Заказ отправляется менеджеру в WhatsApp. Оплата — только после подтверждения наличия и условий. Никаких списаний на сайте нет.</div>' +
+        "</div>" +
+      "</div>" +
+
+      '<aside class="summary summary--sticky">' +
+        '<div class="summary__title">Ваш заказ</div>' +
+        '<div class="mini-items">' + mini + "</div>" +
+        '<div class="summary__row"><span>Товары (' + n + ")</span><b>" + MMS.fmt.price(total) + "</b></div>" +
+        '<div class="summary__row"><span>Доставка</span><b id="sumDel">Самовывоз</b></div>' +
+        '<div class="summary__total"><span>Итого</span><b>' + MMS.fmt.price(total) + "</b></div>" +
+        '<div class="summary__note">Наличие на складе уточнит менеджер при подтверждении заказа.</div>' +
+        '<button class="btn btn--primary btn--lg btn--block" id="coSubmit" type="submit">Подтвердить заказ</button>' +
+        '<a class="btn btn--ghost btn--block" target="_blank" rel="noopener" href="' + U.waLink(draftText) + '">' + MMS.icon("wa", 17) + "Оформить в WhatsApp</a>" +
+        '<a class="btn btn--ghost btn--block" href="cart.html">Вернуться в корзину</a>' +
+      "</aside>" +
+    "</form>";
+
+  var form = $("#coForm");
+  U.maskPhone($("#coPhone"));
+
+  /* организация */
+  var orgChk = $("#coOrg"), orgWrap = $("#orgWrap");
+  orgChk.addEventListener("change", function () { orgWrap.hidden = !orgChk.checked; });
+
+  /* способ получения */
+  function syncDelivery() {
+    var val = form.querySelector('input[name="del"]:checked').value;
+    $("#addrWrap").hidden = val === "pickup";
+    $("#sumDel").textContent = val === "pickup" ? "Самовывоз" : (val === "astana" ? "По Астане" : "По Казахстану");
+    Array.prototype.forEach.call(form.querySelectorAll(".opt"), function (o) {
+      o.classList.toggle("is-active", o.querySelector("input").checked);
+    });
+  }
+  form.addEventListener("change", function (e) {
+    if (e.target.name === "del") syncDelivery();
+  });
+  syncDelivery();
+
+  /* сброс ошибок при вводе */
+  form.addEventListener("input", function (e) {
+    if (e.target.closest(".field")) e.target.closest(".field").classList.remove("has-error");
+    var cw = $("#consentWrap");
+    if (cw) cw.classList.remove("has-error");
+  });
+
+  function setErr(input, on) {
+    var f = input.closest(".field");
+    if (f) f.classList.toggle("has-error", !!on);
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (sending) return;
+    var name = $("#coName"), phone = $("#coPhone"), email = $("#coEmail"),
+        orgN = $("#coOrgName"), bin = $("#coBin"), addr = $("#coAddr"),
+        comment = $("#coComment"), consent = $("#coConsent");
+    var del = form.querySelector('input[name="del"]:checked').value;
+    var bad = [];
+
+    if (name.value.trim().length < 2) { setErr(name, true); bad.push(name); }
+    if (!U.validPhone(phone.value)) { setErr(phone, true); bad.push(phone); }
+    if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { setErr(email, true); bad.push(email); }
+    if (orgChk.checked && orgN.value.trim().length < 2) { setErr(orgN, true); bad.push(orgN); }
+    if (bin.value.trim() && !/^\d{12}$/.test(bin.value.replace(/\s/g, ""))) { setErr(bin, true); bad.push(bin); }
+    if (del !== "pickup" && addr.value.trim().length < 5) { setErr(addr, true); bad.push(addr); }
+    if (!consent.checked) { $("#consentWrap").classList.add("has-error"); bad.push(consent); }
+
+    if (bad.length) {
+      U.toast("Проверьте выделенные поля", { type: "error" });
+      var first = bad[0];
+      var card = first.closest(".form-card");
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+      try { first.focus({ preventScroll: true }); } catch (err) { first.focus(); }
+      return;
+    }
+
+    sending = true;
+    var btn = $("#coSubmit");
+    btn.classList.add("is-loading");
+    btn.textContent = "Отправляем…";
+
+    var delLabel = del === "pickup"
+      ? "Самовывоз: г. Астана, ул. Айнакол, 66"
+      : (del === "astana" ? "Доставка по Астане (курьер)" : "Доставка по Казахстану (ТК)");
+
+    var payload = {
+      kind: "cart",
+      items: items.map(function (it) {
+        return { id: it.product.id, name: it.product.name, variant: it.variant, qty: it.qty,
+                 unit: it.product.unit, art: it.product.article, price: it.price, sum: it.sum };
+      }),
+      total: total,
+      customer: {
+        name: name.value.trim(),
+        phone: phone.value.trim(),
+        email: email.value.trim(),
+        organization: orgChk.checked ? orgN.value.trim() : "",
+        bin: orgChk.checked ? bin.value.replace(/\s/g, "") : "",
+        delivery: delLabel,
+        address: del === "pickup" ? "" : addr.value.trim(),
+        comment: comment.value.trim()
+      }
+    };
+
+    S.customerSave({
+      name: payload.customer.name, phone: payload.customer.phone, email: payload.customer.email,
+      organization: payload.customer.organization, bin: payload.customer.bin, address: payload.customer.address
+    });
+
+    /* небольшая пауза — защита от двойного тапа, затем сохранение и переход */
+    setTimeout(function () {
+      var order = S.orderCreate(payload);
+      S.clearBag("cart");
+      location.href = "success.html?id=" + encodeURIComponent(order.id);
+    }, 320);
+  });
+})();
+</script>
+</body>
+</html>
