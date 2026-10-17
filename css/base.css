@@ -118,7 +118,11 @@ body.has-bottom-nav { padding-bottom: calc(var(--nav-h) + 26px); }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
+  transition: transform .28s var(--ease), box-shadow .2s var(--ease);
 }
+/* на десктопе шапка уезжает вверх при прокрутке вниз и возвращается при прокрутке вверх */
+.header.is-hidden { transform: translateY(-100%); }
+.header.is-scrolled { box-shadow: 0 10px 24px -20px rgba(20, 23, 28, .7); }
 .header__row {
   display: flex; align-items: center; gap: 8px 12px;
   flex-wrap: wrap;

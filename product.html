@@ -10,14 +10,14 @@
 <meta property="og:site_name" content="MegaMedStom Astana">
 <meta property="og:title" content="Товары для стоматологии — MegaMedStom Astana">
 <meta property="og:description" content="Характеристики, фасовки и условия заказа. Доставка по Казахстану, самовывоз в Астане.">
-<meta property="og:url" content="https://megamedstom.kz/catalog.html">
+<meta property="og:url" content="https://mega-med-store.vercel.app/catalog.html">
 <meta name="theme-color" content="#F5F5F2">
 <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/shop.css">
+<link rel="stylesheet" href="css/base.css?v=20261017b">
+<link rel="stylesheet" href="css/shop.css?v=20261017b">
 </head>
 <body class="has-bottom-nav page-product" data-page="product">
 <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -40,12 +40,12 @@
   <button class="buybar__heart" id="barFav" type="button" aria-label="В избранное"></button>
 </div>
 
-<script src="js/base.js"></script>
-<script src="js/art.js"></script>
-<script src="js/data.js"></script>
-<script src="js/store.js"></script>
-<script src="js/search.js"></script>
-<script src="js/ui.js"></script>
+<script src="js/base.js?v=20261017b"></script>
+<script src="js/art.js?v=20261017b"></script>
+<script src="js/data.js?v=20261017b"></script>
+<script src="js/store.js?v=20261017b"></script>
+<script src="js/search.js?v=20261017b"></script>
+<script src="js/ui.js?v=20261017b"></script>
 <script>
 MMS.ui.init({ page: "product" });
 (function () {
@@ -128,7 +128,7 @@ MMS.ui.init({ page: "product" });
   root.innerHTML =
     '<div class="product__grid">' +
       '<div class="gallery">' +
-        '<div class="gallery__main" id="galMain">' + U.artBlock(p) + "</div>" +
+        '<div class="gallery__main" id="galMain">' + U.artBlock(p, { eager: true, sizes: "(max-width: 939px) 92vw, 560px" }) + "</div>" +
       "</div>" +
       '<div class="pinfo">' +
         '<div class="pinfo__brandrow"><span class="pinfo__brand">' + esc(p.brand) + '</span><span class="pinfo__article">Артикул: ' + esc(p.article) + "</span>" + (p.isNew ? '<span class="badge badge--accent">Новинка</span>' : "") + "</div>" +

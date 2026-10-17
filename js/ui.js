@@ -13,9 +13,21 @@
   ui.qsp = (name, def) => { const v = new URLSearchParams(location.search).get(name); return v == null ? (def || "") : v; };
   ui.go = (url) => { location.href = url; };
 
-  ui.artBlock = (p) => p.img
-    ? '<img src="' + esc(p.img) + '" alt="' + esc(p.name) + '" loading="lazy">'
-    : MMS.art(p.art);
+  /* Картинка товара: WebP 320/640 px через srcset — на телефоне грузится
+     лёгкая версия, размеры заданы заранее (нет скачков вёрстки). */
+  ui.artBlock = function (p, opts) {
+    if (!p.img) return MMS.art(p.art);
+    opts = opts || {};
+    const base = p.img.replace(/\.(jpe?g|png|webp)$/i, "");
+    const eager = !!opts.eager;
+    return '<img src="' + esc(base) + '.webp"' +
+      ' srcset="' + esc(base) + '-320.webp 320w, ' + esc(base) + '.webp 640w"' +
+      ' sizes="' + esc(opts.sizes || "(max-width: 700px) 46vw, 300px") + '"' +
+      ' width="640" height="640"' +
+      ' alt="' + esc(p.name) + '"' +
+      ' loading="' + (eager ? "eager" : "lazy") + '" decoding="async"' +
+      (eager ? ' fetchpriority="high"' : "") + ">";
+  };
 
   ui.priceHtml = (p, variant) => {
     const v = variant != null ? variant : p.price;
@@ -338,7 +350,7 @@
         "</div></details>" +
         '<details class="facc" open><summary><h4>Компания</h4></summary><div class="footer__links">' +
           '<a href="about.html">О компании</a><a href="delivery.html">Условия доставки</a><a href="returns.html">Возврат и обмен</a>' +
-          '<a href="privacy.html">Политика конфиденциальности</a><a href="terms.html">Пользовательское соглашение</a><a href="admin.html">Панель менеджера</a>' +
+          '<a href="privacy.html">Политика конфиденциальности</a><a href="terms.html">Пользовательское соглашение</a>' +
         "</div></details>" +
         '<div class="footer__col"><h4>Контакты</h4><div class="footer__contacts">' +
           '<div class="footer__contact-row">' + MMS.icon("pin", 17) + "<span>" + esc(c.addressFull) + "</span></div>" +
@@ -749,6 +761,26 @@
 
     const chromeTop = $("#chromeTop");
     if (chromeTop) { chromeTop.innerHTML = headerHtml(page, cat); }
+
+    /* Шапка на десктопе: прокрутка вниз — уезжает, вверх — возвращается.
+       На телефоне шапка не липкая и просто прокручивается со страницей. */
+    const headerEl = $(".header");
+    if (headerEl) {
+      const desk = window.matchMedia("(min-width: 900px)");
+      let lastY = window.scrollY;
+      window.addEventListener("scroll", () => {
+        const y = window.scrollY;
+        if (Math.abs(y - lastY) < 6) return;
+        if (desk.matches) {
+          headerEl.classList.toggle("is-hidden", y > lastY && y > 140);
+        } else {
+          headerEl.classList.remove("is-hidden");
+        }
+        headerEl.classList.toggle("is-scrolled", y > 8);
+        lastY = y;
+      }, { passive: true });
+      desk.addEventListener("change", () => headerEl.classList.remove("is-hidden"));
+    }
     const chromeFooter = $("#chromeFooter");
     if (chromeFooter) {
       chromeFooter.innerHTML = footerHtml();
