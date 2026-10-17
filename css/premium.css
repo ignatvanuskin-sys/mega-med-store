@@ -299,6 +299,16 @@ main { animation: pageIn .45s var(--ease) both; }
 
 @media (max-width: 420px) { .catcard__name { font-size: 11.5px; } .catcard { padding: 11px 10px; } }
 
-/* Шапка прокручивается вместе со страницей на всех экранах */
-.header { position: relative; top: auto; }
+
+/* HEADER STICKY: шапка всегда на экране, при прокрутке сжимается */
+.header { position: sticky; top: 0; z-index: 90; }
 .header.is-hidden { transform: none; }
+.header.is-scrolled { box-shadow: 0 10px 24px -20px rgba(20, 23, 28, .75); }
+.header.is-scrolled .header__row { padding-top: 6px; padding-bottom: 6px; }
+@media (max-width: 899px) {
+  .header.is-scrolled .header__search { display: none; }
+  .header.is-scrolled .header__row { padding: 6px 0; }
+}
+
+/* wrapper must not constrain the sticky header */
+#chromeTop { display: contents; }

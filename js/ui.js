@@ -777,6 +777,14 @@
     const chromeTop = $("#chromeTop");
     if (chromeTop) { chromeTop.innerHTML = headerHtml(page, cat); }
 
+    /* Шапка закреплена сверху: при прокрутке добавляем тень и сжимаем её */
+    const headerEl = $(".header");
+    if (headerEl) {
+      const onScroll = () => headerEl.classList.toggle("is-scrolled", window.scrollY > 8);
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    }
+
     const chromeFooter = $("#chromeFooter");
     if (chromeFooter) {
       chromeFooter.innerHTML = footerHtml();
