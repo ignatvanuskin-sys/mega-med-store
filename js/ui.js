@@ -289,7 +289,11 @@
   function headerHtml(page, cat) {
     const phone = C.company;
 
-    return '<header class="header"><div class="wrap">' +
+    return '<div class="topbar"><div class="wrap">' +
+        '<div class="topbar__left"><span><i class="topbar__dot"></i>Астана · ул. Айнакол, 66</span><span>' + esc(phone.hours) + '</span></div>' +
+        '<div class="topbar__right"><span>Самовывоз и доставка по Казахстану</span><span>Документы для клиник по БИН</span></div>' +
+      '</div></div>' +
+      '<header class="header"><div class="wrap">' +
         '<div class="header__row">' +
           '<a class="logo" href="index.html">' + MMS.logoMark(34) +
             '<span class="logo__text"><span class="logo__name">Mega<em>Med</em>Stom</span><span class="logo__sub">Стоматологические товары · Астана</span></span></a>' +
