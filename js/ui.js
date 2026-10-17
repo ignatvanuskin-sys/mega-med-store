@@ -777,25 +777,6 @@
     const chromeTop = $("#chromeTop");
     if (chromeTop) { chromeTop.innerHTML = headerHtml(page, cat); }
 
-    /* Шапка на десктопе: прокрутка вниз — уезжает, вверх — возвращается.
-       На телефоне шапка не липкая и просто прокручивается со страницей. */
-    const headerEl = $(".header");
-    if (headerEl) {
-      const desk = window.matchMedia("(min-width: 900px)");
-      let lastY = window.scrollY;
-      window.addEventListener("scroll", () => {
-        const y = window.scrollY;
-        if (Math.abs(y - lastY) < 6) return;
-        if (desk.matches) {
-          headerEl.classList.toggle("is-hidden", y > lastY && y > 140);
-        } else {
-          headerEl.classList.remove("is-hidden");
-        }
-        headerEl.classList.toggle("is-scrolled", y > 8);
-        lastY = y;
-      }, { passive: true });
-      desk.addEventListener("change", () => headerEl.classList.remove("is-hidden"));
-    }
     const chromeFooter = $("#chromeFooter");
     if (chromeFooter) {
       chromeFooter.innerHTML = footerHtml();

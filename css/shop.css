@@ -141,7 +141,7 @@
 /* сайдбар фильтров */
 .filters { display: none; }
 @media (min-width: 960px) {
-  .filters { display: flex; flex-direction: column; gap: 22px; position: sticky; top: calc(var(--header-h) + 16px); }
+  .filters { display: flex; flex-direction: column; gap: 22px; position: sticky; top: 16px; }
 }
 .fblock + .fblock { margin-top: 22px; }
 .fblock__title { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin-bottom: 10px; }
@@ -397,7 +397,7 @@
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
   padding: 18px;
 }
-@media (min-width: 940px) { .summary--sticky { position: sticky; top: calc(var(--header-h) + 16px); } }
+@media (min-width: 940px) { .summary--sticky { position: sticky; top: 16px; } }
 .summary__title { font-size: 16px; font-weight: 800; margin-bottom: 14px; }
 .summary__row { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; color: var(--ink-2); padding: 6px 0; }
 .summary__row b { color: var(--ink); font-weight: 700; }

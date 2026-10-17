@@ -298,3 +298,7 @@ main { animation: pageIn .45s var(--ease) both; }
 .footer .logo__name { font-size: 20px; }
 
 @media (max-width: 420px) { .catcard__name { font-size: 11.5px; } .catcard { padding: 11px 10px; } }
+
+/* Шапка прокручивается вместе со страницей на всех экранах */
+.header { position: relative; top: auto; }
+.header.is-hidden { transform: none; }
